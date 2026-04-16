@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olympus – Deep Dive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f8f8f8;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #stage {
+    width: 1280px;
+    height: 720px;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+    transform-origin: top left;
+  }
+
+  canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  #fxCanvas { z-index: 2; }
+
+  .scene {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .scene.active { opacity: 1; pointer-events: all; }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 3px;
+    background: #C0392B;
+    width: 0%;
+    z-index: 100;
+    transition: width 0.3s linear;
+  }
+
+  /* ── SCENE COUNTER ── */
+  #scene-counter {
+    position: absolute;
+    top: 20px; right: 28px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #aaa;
+    letter-spacing: 2px;
+    z-index: 100;
+    text-transform: uppercase;
+  }
+
+  /* ── CONTROLS hidden ── */
+  #controls { display: none; }
+
+  /* ─────────────── SCENE 1 ─────────────── */
+  #s1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    position: relative;
+  }
+
+  #s1-pulse-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  #s1-text-layer {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .s1-title {
+    font-size: 80px;
+    font-weight: 900;
+    color: #C0392B;
+    letter-spacing: -2px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .s1-sub {
+    font-size: 16px;
+    font-weight: 400;
+    color: #1a1a2e;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 14px;
+    opacity: 0;
+    transition: opacity 1s ease 0.6s;
+  }
+
+  .s1-tagline {
+    font-size: 13px;
+    font-weight: 300;
+    color: #888;
+    letter-spacing: 3px;
+    margin-top: 8px;
+    opacity: 0;
+    transition: opacity 1s ease 1.2s;
+    text-transform: uppercase;
+  }
+
+  .s1-pulse {
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px solid rgba(192,57,43,0.3);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 2s ease-out infinite;
+    z-index: 1;
+  }
+
+  .s1-pulse:nth-child(2) { animation-delay: 0.5s; }
+  .s1-pulse:nth-child(3) { animation-delay: 1s; }
+  .s1-pulse:nth-child(4) { animation-delay: 1.5s; }
+
+  @keyframes pulse-ring {
+    0% { transform: translate(-50%,-50%) scale(0.5); opacity: 0.8; }
+    100% { transform: translate(-50%,-50%) scale(4); opacity: 0; }
+  }
+
+  /* ─────────────── SCENE 2 ─────────────── */
+  #s2 {
+    background: #f9f9fb;
+  }
+
+  .s2-title {
+    position: absolute;
+    top: 28px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #C0392B;
+    text-transform: uppercase;
+    opacity: 0;
+  }
+
+  .agent-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 10;
+  }
+
+  .agent-node.dim { opacity: 0.18 !important; }
+  .agent-node.lit { opacity: 1 !important; }
+
+  .node-circle {
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 2px solid transparent;
+    position: relative;
+  }
+
+  .node-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+    color: #1a1a2e;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .node-sub {
+    font-size: 8px;
+    color: #888;
+    text-align: center;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+
+  /* goku big */
+  .goku-node .node-circle {
+    width: 76px; height: 76px;
+    font-size: 26px;
+    background: #1a1a2e;
+    border-color: #C0392B;
+    box-shadow: 0 0 24px rgba(192,57,43,0.4);
+  }
+
+  .goku-node .node-label { font-size: 11px; color: #1a1a2e; }
+
+  /* mini jira board */
+  .jira-board {
+    position: absolute;
+    right: -100px; top: -20px;
+    width: 88px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .jira-board .jb-title {
+    font-size: 7px;
+    font-weight: 700;
+    color: #C0392B;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .jira-col {
+    display: flex;
+    gap: 3px;
+  }
+
+  .jira-col-inner {
+    flex: 1;
+    background: #f4f4f6;
+    border-radius: 3px;
+    padding: 2px;
+    min-height: 30px;
+  }
+
+  .jira-col-inner .jc-head {
+    font-size: 6px;
+    font-weight: 700;
+    color: #999;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .jira-card {
+    background: #fff;
+    border-radius: 2px;
+    height: 8px;
+    margin-bottom: 2px;
+    border-left: 2px solid #C0392B;
+  }
+
+  .jira-card.done { border-left-color: #27ae60; }
+  .jira-card.prog { border-left-color: #f39c12; }
+
+  /* ─────────────── SCENE 3 ─────────────── */
+  #s3 { background: #f9f9fb; }
+
+  .flow-label {
+    position: absolute;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1a1a2e;
+    opacity: 0;
+    background: #fff;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #eee;
+  }
+
+  /* checkpoint */
+  .checkpoint {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    z-index: 10;
+  }
+
+  .cp-box {
+    padding: 8px 16px;
+    border: 2px solid #C0392B;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #C0392B;
+    background: rgba(192,57,43,0.06);
+    position: relative;
+  }
+
+  .cp-box.passed {
+    border-color: #00c9a7;
+    color: #00c9a7;
+    background: rgba(0,201,167,0.08);
+    box-shadow: 0 0 14px rgba(0,201,167,0.25);
+  }
+
+  /* ─────────────── SCENE 4 ─────────────── */
+  #s4 { background: #f9f9fb; }
+
+  /* ─────────────── SCENE 5 ─────────────── */
+  #s5 { background: #f9f9fb; }
+
+  /* ─────────────── SCENE 6 ─────────────── */
+  #s6 { background: #ffffff; }
+
+  /* ─────────────── SCENE 7 ─────────────── */
+  #s7 { background: #ffffff; }
+
+  /* ─────────────── SCENE 8 ─────────────── */
+  #s8 { background: #ffffff; }
+
+  /* ─────────────── SCENE 9 ─────────────── */
+  #s9 { background: #ffffff; }
+
+  /* ── Gate visual ── */
+  .gate {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    z-index: 20;
+    transition: opacity 0.5s ease;
+  }
+
+  .gate-bar {
+    width: 160px;
+    height: 44px;
+    border: 2.5px solid #C0392B;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #C0392B;
+    background: rgba(192,57,43,0.06);
+    text-transform: uppercase;
+  }
+
+  .gate-bar.open {
+    border-color: #00a887;
+    color: #00a887;
+    background: rgba(0,168,135,0.08);
+    box-shadow: 0 0 16px rgba(0,168,135,0.2);
+  }
+
+  /* dark node — now light-mode compatible */
+  .dark-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 10;
+  }
+
+  .dark-node.dim { opacity: 0.15 !important; }
+  .dark-node.lit { opacity: 1 !important; }
+
+  .dn-circle {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1.5px solid;
+  }
+
+  .dn-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .dn-sub {
+    font-size: 7.5px;
+    text-align: center;
+    margin-top: 1px;
+    opacity: 0.6;
+  }
+
+  /* override dark-node colors for light bg scenes */
+  #s6 .dn-circle, #s7 .dn-circle, #s8 .dn-circle {
+    background: #f4f4f6 !important;
+  }
+  #s6 .dn-label, #s7 .dn-label, #s8 .dn-label { color: #1a1a2e !important; }
+  #s6 .dn-sub, #s7 .dn-sub, #s8 .dn-sub { color: #888 !important; }
+
+  /* pass badges */
+  .pass-badge {
+    position: absolute;
+    padding: 6px 18px;
+    border: 2px solid #00a887;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: #00a887;
+    background: rgba(0,168,135,0.08);
+    box-shadow: 0 0 14px rgba(0,168,135,0.2);
+    text-transform: uppercase;
+    opacity: 0;
+  }
+
+  /* final scene typography */
+  .final-line1 {
+    position: absolute;
+    left: 50%; top: 160px;
+    transform: translateX(-50%);
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a2e;
+    letter-spacing: 1px;
+    text-align: center;
+    opacity: 0;
+    width: 860px;
+    line-height: 1.35;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  .final-line1 span { color: #C0392B; }
+  .final-line1 span.cyan { color: #00a887; }
+
+  .final-line2 {
+    position: absolute;
+    left: 50%; top: 270px;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 400;
+    color: #666;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0;
+    text-align: center;
+    width: 700px;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
+  .final-logo {
+    position: absolute;
+    left: 50%; top: 340px;
+    transform: translateX(-50%);
+    font-size: 56px;
+    font-weight: 900;
+    color: #C0392B;
+    letter-spacing: -1px;
+    opacity: 0;
+    z-index: 10;
+  }
+
+  /* ── scene subtitle ── */
+  .scene-subtitle {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #444;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-align: center;
+    opacity: 1;
+    white-space: nowrap;
+    z-index: 200;
+    background: #fff;
+    padding: 6px 18px;
+    border-top: 2px solid #C0392B;
+    width: 100%;
+    box-sizing: border-box;
+    left: 0;
+    transform: none;
+  }
+
+  /* ── packet animation ── */
+  @keyframes flow-right {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100px); opacity: 0; }
+  }
+
+  @keyframes float-up {
+    from { transform: translateY(0); opacity: 0.9; }
+    to { transform: translateY(-30px); opacity: 0; }
+  }
+
+  @keyframes blink-dot {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.2; }
+  }
+
+  .orbit-dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #C0392B;
+    animation: blink-dot 1.2s ease-in-out infinite;
+  }
+
+  @keyframes scan-line {
+    0% { top: 0; }
+    100% { top: 100%; }
+  }
+
+  .code-panel {
+    position: absolute;
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .code-panel-inner {
+    padding: 14px;
+    height: 100%;
+    position: relative;
+  }
+
+  .code-line {
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  .scan-beam {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00c9a7, transparent);
+    animation: scan-line 1.8s linear infinite;
+  }
+
+  /* test grid */
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+
+  .test-cell {
+    width: 18px; height: 18px;
+    border-radius: 3px;
+    background: #1e2540;
+    border: 1px solid #2a3050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .test-cell { background: #f0f0f4; border: 1px solid #ddd; }
+  .test-cell.pass { background: rgba(0,168,135,0.12); border-color: #00a887; color: #00a887; }
+  .test-cell.fail { background: rgba(192,57,43,0.1); border-color: #C0392B; color: #C0392B; }
+
+  /* cloud nodes */
+  .cloud-node {
+    position: absolute;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.6s;
+    z-index: 10;
+  }
+
+  .cn-icon { font-size: 22px; }
+  .cn-label { font-size: 8px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+  /* blueprint lines */
+  .blueprint-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #C0392B, transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  /* ui frame */
+  .ui-frame {
+    position: absolute;
+    border-radius: 6px;
+    background: #fff;
+    border: 1.5px solid #e8e8ec;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .ui-frame-bar {
+    height: 22px;
+    background: #f4f4f6;
+    border-bottom: 1px solid #ebebef;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .ui-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* data packet */
+  .data-packet {
+    position: absolute;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0;
+    z-index: 10;
+  }
+
+  /* scene label top */
+  .scene-label {
+    position: absolute;
+    top: 22px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: 0;
+    z-index: 10;
+    transition: opacity 0.5s ease;
+    white-space: nowrap;
+  }
+
+  .ui-frame { z-index: 10; }
+  .code-panel { z-index: 10; }
+  .flow-label { z-index: 10; }
+  .pass-badge { z-index: 10; }
+  .checkpoint { z-index: 10; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bgCanvas" style="z-index:1;"></canvas>
+  <canvas id="fxCanvas" style="z-index:2;"></canvas>
+
+  <!-- SCENE 1 -->
+  <div id="s1" class="scene">
+    <div id="s1-pulse-layer">
+      <div class="s1-pulse"></div>
+      <div class="s1-pulse" style="animation-delay:0.5s"></div>
+      <div class="s1-pulse" style="animation-delay:1s"></div>
+      <div class="s1-pulse" style="animation-delay:1.5s"></div>
+    </div>
+    <div id="s1-text-layer">
+      <div class="s1-title" id="s1Title">Olympus</div>
+      <div class="s1-sub" id="s1Sub">Deep Dive</div>
+      <div class="s1-tagline" id="s1Tag">12 Agents &nbsp;·&nbsp; Gated Delivery &nbsp;·&nbsp; Zero Shortcuts</div>
+    </div>
+    <div class="scene-subtitle" id="sub1">A disciplined multi-agent software delivery system — every stage gated, reviewed &amp; approved before moving forward.</div>
+  </div>
+
+  <!-- SCENE 2 -->
+  <div id="s2" class="scene">
+    <div class="s2-title" id="s2Title">The Core Team</div>
+    <div class="scene-subtitle" id="sub2">8 always-active agents orchestrated by Goku — each specialised, none redundant. 4 specialists activate on demand.</div>
+    <!-- Goku center -->
+    <div class="agent-node goku-node" id="ag-goku" style="left:560px;top:290px;">
+      <div class="node-circle" style="background:#1a1a2e;border-color:#C0392B;box-shadow:0 0 28px rgba(192,57,43,0.45);">🎯</div>
+      <div class="node-label">Goku</div>
+      <div class="node-sub">Orchestrator & Lead</div>
+      <div class="jira-board" id="jiraBoard">
+        <div class="jb-title">Task Board</div>
+        <div class="jira-col">
+          <div class="jira-col-inner">
+            <div class="jc-head">Todo</div>
+            <div class="jira-card"></div>
+            <div class="jira-card"></div>
+          </div>
+          <div class="jira-col-inner">
+            <div class="jc-head">WIP</div>
+            <div class="jira-card prog"></div>
+          </div>
+          <div class="jira-col-inner">
+            <div class="jc-head">Done</div>
+            <div class="jira-card done"></div>
+            <div class="jira-card done"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Kira -->
+    <div class="agent-node" id="ag-kira" style="left:370px;top:180px;">
+      <div class="node-circle" style="background:#fff5f5;border-color:#e8856e;">📋</div>
+      <div class="node-label">Kira</div><div class="node-sub">Project Manager</div>
+    </div>
+    <!-- Atlas -->
+    <div class="agent-node" id="ag-atlas" style="left:600px;top:130px;">
+      <div class="node-circle" style="background:#f5f8ff;border-color:#6e8de8;">🗺️</div>
+      <div class="node-label">Atlas</div><div class="node-sub">System Architect</div>
+    </div>
+    <!-- Pixel -->
+    <div class="agent-node" id="ag-pixel" style="left:820px;top:180px;">
+      <div class="node-circle" style="background:#fdf5ff;border-color:#b56ee8;">🎨</div>
+      <div class="node-label">Pixel</div><div class="node-sub">UI Designer</div>
+    </div>
+    <!-- Forge -->
+    <div class="agent-node" id="ag-forge" style="left:380px;top:390px;">
+      <div class="node-circle" style="background:#fff8f0;border-color:#e8966e;">⚙️</div>
+      <div class="node-label">Forge</div><div class="node-sub">Backend Engineer</div>
+    </div>
+    <!-- Nova -->
+    <div class="agent-node" id="ag-nova" style="left:810px;top:390px;">
+      <div class="node-circle" style="background:#f0fff8;border-color:#6ee8b5;">✨</div>
+      <div class="node-label">Nova</div><div class="node-sub">Frontend Engineer</div>
+    </div>
+    <!-- Warden -->
+    <div class="agent-node" id="ag-warden" style="left:460px;top:490px;">
+      <div class="node-circle" style="background:#fff0f0;border-color:#C0392B;">🛡️</div>
+      <div class="node-label">Warden</div><div class="node-sub">Code Reviewer</div>
+    </div>
+    <!-- Sentinel -->
+    <div class="agent-node" id="ag-sentinel" style="left:700px;top:490px;">
+      <div class="node-circle" style="background:#f0faff;border-color:#3ab8e8;">🔬</div>
+      <div class="node-label">Sentinel</div><div class="node-sub">QA Engineer</div>
+    </div>
+    <!-- Specialists -->
+    <div class="agent-node" id="ag-blaze" style="left:130px;top:560px;">
+      <div class="node-circle" style="width:42px;height:42px;font-size:15px;background:#fff8f0;border-color:#e8b06e;">📱</div>
+      <div class="node-label" style="font-size:8px;">Blaze</div><div class="node-sub">Mobile</div>
+    </div>
+    <div class="agent-node" id="ag-flux" style="left:290px;top:590px;">
+      <div class="node-circle" style="width:42px;height:42px;font-size:15px;background:#f5f8ff;border-color:#6e9ae8;">📊</div>
+      <div class="node-label" style="font-size:8px;">Flux</div><div class="node-sub">Data Eng</div>
+    </div>
+    <div class="agent-node" id="ag-sage" style="left:900px;top:590px;">
+      <div class="node-circle" style="width:42px;height:42px;font-size:15px;background:#f5fff8;border-color:#6ee89a;">🧠</div>
+      <div class="node-label" style="font-size:8px;">Sage</div><div class="node-sub">AI/ML</div>
+    </div>
+    <div class="agent-node" id="ag-stratos" style="left:1060px;top:560px;">
+      <div class="node-circle" style="width:42px;height:42px;font-size:15px;background:#f0f8ff;border-color:#6ec3e8;">☁️</div>
+      <div class="node-label" style="font-size:8px;">Stratos</div><div class="node-sub">DevOps</div>
+    </div>
+    <div id="s2-specialist-label" style="position:absolute;bottom:55px;left:50%;transform:translateX(-50%);font-size:9px;color:#aaa;letter-spacing:2px;text-transform:uppercase;opacity:0;">Specialist Agents — On Demand</div>
+  </div>
+
+  <!-- SCENE 3 -->
+  <div id="s3" class="scene">
+    <div class="scene-label" id="s3-label" style="color:#C0392B;">Spec & Requirements</div>
+    <div class="scene-subtitle" id="sub3">The client brief enters through Goku. It is simultaneously routed to Kira for sprint planning and to Atlas for architecture — nothing proceeds without human sign-off.</div>
+    <!-- nodes reuse -->
+    <div class="agent-node" id="s3-goku" style="left:560px;top:300px;">
+      <div class="node-circle" style="background:#1a1a2e;border-color:#C0392B;box-shadow:0 0 20px rgba(192,57,43,0.4);">🎯</div>
+      <div class="node-label">Goku</div><div class="node-sub">Orchestrator</div>
+    </div>
+    <div class="agent-node" id="s3-kira" style="left:320px;top:180px;">
+      <div class="node-circle" style="background:#fff5f5;border-color:#e8856e;">📋</div>
+      <div class="node-label">Kira</div><div class="node-sub">Project Manager</div>
+    </div>
+    <div class="agent-node" id="s3-atlas" style="left:800px;top:180px;">
+      <div class="node-circle" style="background:#f5f8ff;border-color:#6e8de8;">🗺️</div>
+      <div class="node-label">Atlas</div><div class="node-sub">System Architect</div>
+    </div>
+    <!-- doc card -->
+    <div class="data-packet" id="s3-doc" style="left:60px;top:310px;background:#fff;border:1.5px solid #1a1a2e;color:#1a1a2e;padding:8px 14px;border-radius:6px;font-size:9px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">📄 Client Brief</div>
+    <!-- sprint board -->
+    <div id="s3-sprint" style="position:absolute;left:130px;top:140px;width:160px;background:#fff;border:1.5px solid #e8856e;border-radius:8px;padding:10px;opacity:0;">
+      <div style="font-size:8px;font-weight:700;color:#C0392B;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Sprint Plan</div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="height:10px;background:#ffe8e8;border-radius:3px;border-left:3px solid #e8856e;"></div>
+        <div style="height:10px;background:#ffe8e8;border-radius:3px;border-left:3px solid #e8856e;width:75%;"></div>
+        <div style="height:10px;background:#ffe8e8;border-radius:3px;border-left:3px solid #e8856e;width:55%;"></div>
+      </div>
+    </div>
+    <!-- arch diagram -->
+    <div id="s3-arch" style="position:absolute;left:900px;top:140px;width:160px;background:#f5f8ff;border:1.5px solid #6e8de8;border-radius:8px;padding:10px;opacity:0;">
+      <div style="font-size:8px;font-weight:700;color:#6e8de8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">Architecture</div>
+      <div style="display:flex;gap:6px;justify-content:center;align-items:center;">
+        <div style="width:22px;height:22px;border:1.5px solid #6e8de8;border-radius:3px;"></div>
+        <div style="font-size:8px;color:#6e8de8;">→</div>
+        <div style="width:22px;height:22px;border:1.5px solid #6e8de8;border-radius:3px;"></div>
+      </div>
+    </div>
+    <!-- checkpoint -->
+    <div class="checkpoint" id="s3-cp" style="left:50%;bottom:80px;transform:translateX(-50%);">
+      <div class="cp-box" id="s3-cp-box">Human Sign-off</div>
+    </div>
+  </div>
+
+  <!-- SCENE 4 -->
+  <div id="s4" class="scene">
+    <div class="scene-label" id="s4-label" style="color:#C0392B;">HLD + LLD → Sprint Planning</div>
+    <div class="scene-subtitle" id="sub4">Atlas produces high-level and low-level design blueprints. Each must pass a human checkpoint before Kira converts them into structured sprint lanes and milestones.</div>
+    <div class="agent-node" id="s4-atlas" style="left:200px;top:260px;">
+      <div class="node-circle" style="background:#f5f8ff;border-color:#6e8de8;">🗺️</div>
+      <div class="node-label">Atlas</div><div class="node-sub">System Architect</div>
+    </div>
+    <div class="agent-node" id="s4-kira" style="left:950px;top:260px;">
+      <div class="node-circle" style="background:#fff5f5;border-color:#e8856e;">📋</div>
+      <div class="node-label">Kira</div><div class="node-sub">Project Manager</div>
+    </div>
+    <div class="agent-node" id="s4-goku" style="left:580px;top:80px;">
+      <div class="node-circle" style="background:#fff0f0;border-color:#C0392B;box-shadow:0 0 14px rgba(192,57,43,0.2);">🎯</div>
+      <div class="node-label" style="color:#1a1a2e;">Goku</div><div class="node-sub">Human Checkpoint</div>
+    </div>
+    <!-- blueprint -->
+    <div id="s4-bp" style="position:absolute;left:50px;top:160px;width:240px;background:#f5f8ff;border:1.5px solid #6e8de8;border-radius:8px;padding:12px;opacity:0;">
+      <div style="font-size:8px;font-weight:700;color:#6e8de8;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">HLD + LLD Blueprint</div>
+      <div id="bp-lines"></div>
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+        <div style="padding:3px 8px;border:1px solid #6e8de8;border-radius:12px;font-size:7px;color:#6e8de8;font-weight:600;">APIs</div>
+        <div style="padding:3px 8px;border:1px solid #6e8de8;border-radius:12px;font-size:7px;color:#6e8de8;font-weight:600;">Services</div>
+        <div style="padding:3px 8px;border:1px solid #6e8de8;border-radius:12px;font-size:7px;color:#6e8de8;font-weight:600;">DB Schema</div>
+        <div style="padding:3px 8px;border:1px solid #6e8de8;border-radius:12px;font-size:7px;color:#6e8de8;font-weight:600;">Components</div>
+      </div>
+    </div>
+    <!-- sprint -->
+    <div id="s4-sp" style="position:absolute;right:40px;top:160px;width:240px;background:#fff;border:1.5px solid #e8856e;border-radius:8px;padding:12px;opacity:0;">
+      <div style="font-size:8px;font-weight:700;color:#e8856e;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Sprint Lanes</div>
+      <div style="display:flex;flex-direction:column;gap:5px;" id="sprint-lanes"></div>
+    </div>
+    <!-- gate1 -->
+    <div class="gate" id="s4-gate1" style="left:480px;top:200px;">
+      <div class="gate-bar" id="s4-gate1-bar">Atlas → Human</div>
+    </div>
+    <!-- gate2 -->
+    <div class="gate" id="s4-gate2" style="left:480px;top:420px;">
+      <div class="gate-bar" id="s4-gate2-bar">Kira → Human</div>
+    </div>
+  </div>
+
+  <!-- SCENE 5 -->
+  <div id="s5" class="scene">
+    <div class="scene-label" id="s5-label" style="color:#C0392B;">Design & Build</div>
+    <div class="scene-subtitle" id="sub5">Pixel produces wireframes and UI assets. In parallel, Forge builds backend logic and Nova assembles the frontend — with Goku coordinating every thread.</div>
+    <div class="agent-node" id="s5-pixel" style="left:540px;top:70px;">
+      <div class="node-circle" style="background:#fdf5ff;border-color:#b56ee8;">🎨</div>
+      <div class="node-label">Pixel</div><div class="node-sub">UI Designer</div>
+    </div>
+    <div class="agent-node" id="s5-forge" style="left:240px;top:350px;">
+      <div class="node-circle" style="background:#fff8f0;border-color:#e8966e;">⚙️</div>
+      <div class="node-label">Forge</div><div class="node-sub">Backend Engineer</div>
+    </div>
+    <div class="agent-node" id="s5-nova" style="left:840px;top:350px;">
+      <div class="node-circle" style="background:#f0fff8;border-color:#6ee8b5;">✨</div>
+      <div class="node-label">Nova</div><div class="node-sub">Frontend Engineer</div>
+    </div>
+    <div class="agent-node" id="s5-goku" style="left:540px;top:340px;">
+      <div class="node-circle" style="background:#1a1a2e;border-color:#C0392B;box-shadow:0 0 16px rgba(192,57,43,0.3);">🎯</div>
+      <div class="node-label" style="color:#1a1a2e;">Goku</div><div class="node-sub">Orchestrator</div>
+    </div>
+    <!-- specialists -->
+    <div class="agent-node" id="s5-blaze" style="left:60px;top:490px;">
+      <div class="node-circle" style="width:44px;height:44px;font-size:16px;background:#fff8f0;border-color:#e8b06e;">📱</div>
+      <div class="node-label" style="font-size:8px;">Blaze</div><div class="node-sub">Mobile</div>
+    </div>
+    <div class="agent-node" id="s5-flux" style="left:180px;top:560px;">
+      <div class="node-circle" style="width:44px;height:44px;font-size:16px;background:#f5f8ff;border-color:#6e9ae8;">📊</div>
+      <div class="node-label" style="font-size:8px;">Flux</div><div class="node-sub">Data Eng</div>
+    </div>
+    <div class="agent-node" id="s5-sage" style="left:1040px;top:490px;">
+      <div class="node-circle" style="width:44px;height:44px;font-size:16px;background:#f5fff8;border-color:#6ee89a;">🧠</div>
+      <div class="node-label" style="font-size:8px;">Sage</div><div class="node-sub">AI/ML</div>
+    </div>
+    <!-- UI frames -->
+    <div class="ui-frame" id="s5-frame1" style="left:400px;top:165px;width:280px;height:120px;">
+      <div class="ui-frame-bar">
+        <div class="ui-dot" style="background:#ff6b6b;"></div>
+        <div class="ui-dot" style="background:#ffd166;"></div>
+        <div class="ui-dot" style="background:#06d6a0;"></div>
+        <span style="font-size:8px;color:#aaa;margin-left:6px;letter-spacing:1px;">design.proto</span>
+      </div>
+      <div style="padding:8px;display:flex;gap:8px;">
+        <div style="flex:1;height:70px;background:#f4f4f6;border-radius:4px;"></div>
+        <div style="width:60px;display:flex;flex-direction:column;gap:6px;">
+          <div style="height:20px;background:#e8e8ec;border-radius:3px;"></div>
+          <div style="height:20px;background:#b56ee8;border-radius:3px;opacity:0.5;"></div>
+          <div style="height:20px;background:#e8e8ec;border-radius:3px;width:70%;"></div>
+        </div>
+      </div>
+    </div>
+    <!-- backend panel -->
+    <div class="code-panel" id="s5-bepanel" style="left:60px;top:220px;width:200px;height:130px;background:#1a1a2e;">
+      <div class="code-panel-inner">
+        <div class="code-line" style="background:#e8966e;width:80%;"></div>
+        <div class="code-line" style="background:#3a4060;width:60%;"></div>
+        <div class="code-line" style="background:#6ee8b5;width:90%;"></div>
+        <div class="code-line" style="background:#3a4060;width:50%;"></div>
+        <div class="code-line" style="background:#e8966e;width:70%;"></div>
+        <div class="code-line" style="background:#3a4060;width:85%;"></div>
+        <div class="code-line" style="background:#6e8de8;width:40%;"></div>
+      </div>
+    </div>
+    <!-- frontend panel -->
+    <div class="code-panel" id="s5-fepanel" style="right:60px;top:220px;width:200px;height:130px;background:#f0fff8;border:1px solid #6ee8b5;">
+      <div class="code-panel-inner">
+        <div class="code-line" style="background:#6ee8b5;width:70%;"></div>
+        <div class="code-line" style="background:#c8f4e8;width:90%;"></div>
+        <div class="code-line" style="background:#6ee8b5;width:55%;"></div>
+        <div class="code-line" style="background:#c8f4e8;width:80%;"></div>
+        <div class="code-line" style="background:#6ee8b5;width:65%;"></div>
+        <div class="code-line" style="background:#c8f4e8;width:45%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 6 -->
+  <div id="s6" class="scene">
+    <div class="scene-label" id="s6-label" style="color:#C0392B;">Code Review Gate</div>
+    <div class="scene-subtitle" id="sub6">All build output converges at Warden, powered by the Katich framework. Non-compliant code is bounced back. Only verified code earns REVIEW_PASS.</div>
+    <!-- Warden center -->
+    <div class="dark-node" id="s6-warden" style="left:560px;top:270px;">
+      <div class="dn-circle" style="background:#fff0f0;border-color:#C0392B;box-shadow:0 0 18px rgba(192,57,43,0.2);font-size:26px;width:72px;height:72px;">🛡️</div>
+      <div class="dn-label" style="color:#1a1a2e;font-size:11px;">Warden</div>
+      <div class="dn-sub" style="color:#888;">Code Reviewer · Katich Framework</div>
+    </div>
+    <!-- forge/nova input -->
+    <div class="dark-node" id="s6-forge" style="left:200px;top:260px;">
+      <div class="dn-circle" style="background:#fff8f0;border-color:#e8966e;">⚙️</div>
+      <div class="dn-label" style="color:#e8966e;">Forge</div><div class="dn-sub" style="color:#888;">Backend</div>
+    </div>
+    <div class="dark-node" id="s6-nova" style="left:920px;top:260px;">
+      <div class="dn-circle" style="background:#f0fff8;border-color:#3dbe96;">✨</div>
+      <div class="dn-label" style="color:#3dbe96;">Nova</div><div class="dn-sub" style="color:#888;">Frontend</div>
+    </div>
+    <!-- code panel for warden -->
+    <div class="code-panel" id="s6-panel" style="left:380px;top:160px;width:520px;height:180px;background:#f8f8fb;border:1.5px solid #e0e0e8;">
+      <div class="code-panel-inner">
+        <div class="code-line" style="background:#e0e0e8;width:80%;"></div>
+        <div class="code-line" id="cl1" style="background:#e0e0e8;width:60%;"></div>
+        <div class="code-line" id="cl2" style="background:#e0e0e8;width:90%;"></div>
+        <div class="code-line" id="cl3" style="background:#e0e0e8;width:50%;"></div>
+        <div class="code-line" id="cl4" style="background:#e0e0e8;width:75%;"></div>
+        <div class="code-line" id="cl5" style="background:#e0e0e8;width:65%;"></div>
+        <div class="code-line" id="cl6" style="background:#e0e0e8;width:85%;"></div>
+        <div class="scan-beam" style="background:linear-gradient(90deg,transparent,rgba(192,57,43,0.4),transparent);"></div>
+      </div>
+    </div>
+    <!-- gate -->
+    <div class="gate" id="s6-gate" style="left:50%;bottom:90px;transform:translateX(-50%);">
+      <div class="gate-bar" id="s6-gate-bar">REVIEW_PASS</div>
+    </div>
+    <!-- katich badge -->
+    <div id="s6-katich" style="position:absolute;left:380px;top:128px;padding:4px 12px;border:1px solid #e8966e;border-radius:12px;font-size:8px;font-weight:700;letter-spacing:2px;color:#e8966e;background:#fff8f0;text-transform:uppercase;opacity:0;">Katich Framework</div>
+    <div id="s6-reject" style="position:absolute;left:155px;top:420px;padding:5px 12px;border:1.5px solid #C0392B;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#C0392B;background:#fff0f0;opacity:0;">↩ Revision Required</div>
+  </div>
+
+  <!-- SCENE 7 -->
+  <div id="s7" class="scene">
+    <div class="scene-label" id="s7-label" style="color:#00a887;">QA Testing Gate</div>
+    <div class="scene-subtitle" id="sub7">Sentinel runs unit, integration, regression, E2E, and performance tests. Failures loop back to build agents for fixes. QA_PASS is earned — never assumed.</div>
+
+    <!-- agents row -->
+    <div class="dark-node" id="s7-forge" style="left:80px;top:220px;">
+      <div class="dn-circle" style="background:#fff8f0;border-color:#e8966e;">⚙️</div>
+      <div class="dn-label" style="color:#e8966e;">Forge</div><div class="dn-sub" style="color:#888;">Backend · Fixing</div>
+    </div>
+    <div class="dark-node" id="s7-sentinel" style="left:536px;top:210px;">
+      <div class="dn-circle" style="background:#e8faf6;border-color:#00a887;box-shadow:0 0 16px rgba(0,168,135,0.15);font-size:26px;width:72px;height:72px;">🔬</div>
+      <div class="dn-label" style="color:#1a1a2e;font-size:11px;">Sentinel</div>
+      <div class="dn-sub" style="color:#888;">QA Engineer · Checking</div>
+    </div>
+    <div class="dark-node" id="s7-nova" style="left:1090px;top:220px;">
+      <div class="dn-circle" style="background:#f0fff8;border-color:#3dbe96;">✨</div>
+      <div class="dn-label" style="color:#3dbe96;">Nova</div><div class="dn-sub" style="color:#888;">Frontend · Fixing</div>
+    </div>
+
+    <!-- Forge bug checklist -->
+    <div id="s7-forge-bugs" style="position:absolute;left:24px;top:340px;width:168px;background:#fff;border:1.5px solid #e8966e;border-radius:8px;padding:10px 12px;opacity:0;transition:opacity 0.5s;z-index:10;">
+      <div style="font-size:7.5px;font-weight:700;color:#e8966e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">🛠 Bug Fixes</div>
+      <div id="forge-bug-list"></div>
+    </div>
+
+    <!-- Nova bug checklist -->
+    <div id="s7-nova-bugs" style="position:absolute;right:24px;top:340px;width:168px;background:#fff;border:1.5px solid #3dbe96;border-radius:8px;padding:10px 12px;opacity:0;transition:opacity 0.5s;z-index:10;">
+      <div style="font-size:7.5px;font-weight:700;color:#3dbe96;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">🛠 Bug Fixes</div>
+      <div id="nova-bug-list"></div>
+    </div>
+
+    <!-- Sentinel inspection panel -->
+    <div id="s7-inspect" style="position:absolute;left:50%;top:320px;transform:translateX(-50%);width:300px;background:#f8fefb;border:1.5px solid #00a887;border-radius:8px;padding:12px 14px;opacity:0;transition:opacity 0.5s;z-index:10;">
+      <div style="font-size:7.5px;font-weight:700;color:#00a887;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">🔍 Sentinel Bug Report</div>
+      <div id="s7-bug-report"></div>
+    </div>
+
+    <!-- test grid -->
+    <div id="s7-grid-wrap" style="position:absolute;left:50%;top:100px;transform:translateX(-50%);padding:14px 18px;background:#f8f8fb;border:1.5px solid #e0e0e8;border-radius:8px;opacity:0;white-space:nowrap;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:2px;color:#00a887;text-transform:uppercase;margin-bottom:10px;">Test Suites Running</div>
+      <div class="test-grid" id="testGrid" style="grid-template-columns:repeat(10,1fr);gap:5px;"></div>
+    </div>
+
+    <!-- qa gate -->
+    <div class="gate" id="s7-gate" style="left:50%;bottom:55px;transform:translateX(-50%);">
+      <div class="gate-bar" id="s7-gate-bar">QA_PASS</div>
+    </div>
+    <div id="s7-reject" style="position:absolute;left:50%;top:555px;transform:translateX(-50%);padding:5px 18px;border:1.5px solid #C0392B;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:#C0392B;background:#fff0f0;opacity:0;white-space:nowrap;z-index:10;">↩ Bugs Found — Fix & Retest</div>
+  </div>
+
+  <!-- SCENE 8 -->
+  <div id="s8" class="scene">
+    <div class="scene-label" id="s8-label" style="color:#00a887;">Deploy</div>
+    <div class="scene-subtitle" id="sub8">Only when REVIEW_PASS and QA_PASS are both confirmed does the deployment gate unlock. Stratos takes the verified package to staging, pipeline, production, CDN, and monitoring.</div>
+    <!-- locked gate visual -->
+    <div id="s8-lock" style="position:absolute;left:50%;top:36px;transform:translateX(-50%);display:flex;gap:30px;opacity:0;transition:opacity 0.7s ease;white-space:nowrap;z-index:10;">
+      <div style="padding:6px 16px;border:2px solid #00a887;border-radius:4px;font-size:10px;font-weight:700;color:#00a887;letter-spacing:2px;">✓ REVIEW_PASS</div>
+      <div style="padding:6px 16px;border:2px solid #00a887;border-radius:4px;font-size:10px;font-weight:700;color:#00a887;letter-spacing:2px;">✓ QA_PASS</div>
+    </div>
+    <!-- deploy unlock arrow -->
+    <div id="s8-unlock" style="position:absolute;left:50%;top:100px;transform:translateX(-50%);font-size:15px;color:#00a887;opacity:0;transition:opacity 0.6s ease;font-weight:700;letter-spacing:2px;white-space:nowrap;z-index:10;">↓ Gate Unlocked</div>
+    <!-- stratos -->
+    <div class="dark-node" id="s8-stratos" style="left:570px;top:148px;opacity:0;transition:opacity 0.6s ease;">
+      <div class="dn-circle" style="background:#eaf6fb;border-color:#6ec3e8;box-shadow:0 0 16px rgba(110,195,232,0.25);font-size:24px;width:68px;height:68px;">☁️</div>
+      <div class="dn-label" style="color:#1a1a2e;font-size:11px;">Stratos</div>
+      <div class="dn-sub" style="color:#888;">DevOps</div>
+    </div>
+    <!-- cloud environments -->
+    <div class="cloud-node" id="s8-env1" style="left:48px;top:290px;width:116px;height:84px;background:#f4f4f6;border:1px solid #6ec3e8;border-radius:8px;opacity:0;transition:opacity 0.5s ease;">
+      <div class="cn-icon">🖥️</div>
+      <div class="cn-label" style="color:#1a1a2e;">Staging</div>
+    </div>
+    <div class="cloud-node" id="s8-env2" style="left:218px;top:290px;width:116px;height:84px;background:#f4f4f6;border:1px solid #6ec3e8;border-radius:8px;opacity:0;transition:opacity 0.5s ease;">
+      <div class="cn-icon">⚡</div>
+      <div class="cn-label" style="color:#1a1a2e;">Pipeline</div>
+    </div>
+    <div class="cloud-node" id="s8-env3" style="left:500px;top:284px;width:130px;height:84px;background:#e8faf6;border:2px solid #00a887;border-radius:8px;box-shadow:0 0 14px rgba(0,168,135,0.15);opacity:0;transition:opacity 0.5s ease;">
+      <div class="cn-icon">🚀</div>
+      <div class="cn-label" style="color:#00a887;">Production</div>
+    </div>
+    <div class="cloud-node" id="s8-env4" style="left:810px;top:290px;width:116px;height:84px;background:#f4f4f6;border:1px solid #6ec3e8;border-radius:8px;opacity:0;transition:opacity 0.5s ease;">
+      <div class="cn-icon">🌐</div>
+      <div class="cn-label" style="color:#1a1a2e;">CDN Layer</div>
+    </div>
+    <div class="cloud-node" id="s8-env5" style="left:1010px;top:290px;width:116px;height:84px;background:#f4f4f6;border:1px solid #6ec3e8;border-radius:8px;opacity:0;transition:opacity 0.5s ease;">
+      <div class="cn-icon">📡</div>
+      <div class="cn-label" style="color:#1a1a2e;">Monitoring</div>
+    </div>
+    <!-- live banner -->
+    <div id="s8-live" style="position:absolute;left:50%;top:430px;transform:translateX(-50%);font-size:26px;font-weight:800;letter-spacing:6px;color:#00a887;text-transform:uppercase;opacity:0;transition:opacity 0.7s ease;white-space:nowrap;z-index:10;">● LIVE</div>
+  </div>
+
+  <!-- SCENE 9 -->
+  <div id="s9" class="scene">
+    <div class="final-line1" id="f1">"Nothing ships without <span>REVIEW_PASS</span> + <span class="cyan">QA_PASS</span>"</div>
+    <div class="final-line2" id="f2">Olympus: Multi-agent software delivery with gated execution</div>
+    <div class="final-logo" id="fLogo">Olympus</div>
+    <div id="f3" style="position:absolute;left:50%;top:455px;transform:translateX(-50%);font-size:10px;font-weight:400;letter-spacing:3px;color:#3a4a6a;text-transform:uppercase;opacity:0;white-space:nowrap;z-index:10;">12 Agents · Gated Delivery · Zero Shortcuts</div>
+    <div class="scene-subtitle" id="sub9">The promise kept by every gate, every agent, every delivery.</div>
+  </div>
+
+  <div id="progress-bar"></div>
+  <div id="scene-counter">01 / 09</div>
+  <div id="controls"></div>
+</div>
+
+<script>
+const stage = document.getElementById('stage');
+
+// Scale stage to viewport
+function scaleStage() {
+  const scaleX = window.innerWidth / 1280;
+  const scaleY = window.innerHeight / 720;
+  const scale = Math.min(scaleX, scaleY);
+  stage.style.transform = `scale(${scale})`;
+  stage.style.left = ((window.innerWidth - 1280 * scale) / 2) + 'px';
+  stage.style.top = ((window.innerHeight - 720 * scale) / 2) + 'px';
+  stage.style.position = 'absolute';
+}
+scaleStage();
+window.addEventListener('resize', scaleStage);
+
+// ── CANVAS BACKGROUND ──
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+bgCanvas.width = 1280; bgCanvas.height = 720;
+
+const fxCanvas = document.getElementById('fxCanvas');
+const fxCtx = fxCanvas.getContext('2d');
+fxCanvas.width = 1280; fxCanvas.height = 720;
+  fxCanvas.style.zIndex = 2;
+
+let currentScene = 0;
+let sceneTimeout = null;
+let particles = [];
+let packets = [];
+let connections = [];
+let bgGrid = [];
+let rafId;
+
+// init bg grid dots
+for (let x = 0; x < 1280; x += 48) {
+  for (let y = 0; y < 720; y += 48) {
+    bgGrid.push({ x, y, a: Math.random() * 0.3 + 0.05 });
+  }
+}
+
+const SCENE_DURATIONS = [6000, 9000, 8000, 8000, 9000, 9000, 9000, 8000, 8000];
+const scenes = document.querySelectorAll('.scene');
+const counter = document.getElementById('scene-counter');
+const progress = document.getElementById('progress-bar');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const playBtn = document.getElementById('playBtn');
+
+let progressStart = 0;
+let progressDuration = 0;
+
+// ── AUTO-ADVANCE ──
+function startLoop() {
+  clearTimeout(sceneTimeout);
+  progressStart = performance.now();
+  progressDuration = SCENE_DURATIONS[currentScene];
+  progress.style.width = '0%';
+  sceneTimeout = setTimeout(() => {
+    const next = (currentScene + 1) % 9;
+    currentScene = next;
+    showScene(next);
+    startLoop();
+  }, SCENE_DURATIONS[currentScene]);
+}
+
+// ── MAIN RENDER LOOP ──
+function render(ts) {
+  rafId = requestAnimationFrame(render);
+
+  // BG — always white/light
+  bgCtx.clearRect(0, 0, 1280, 720);
+  bgCtx.fillStyle = '#ffffff';
+  bgCtx.fillRect(0, 0, 1280, 720);
+  bgGrid.forEach(d => {
+    bgCtx.beginPath();
+    bgCtx.arc(d.x, d.y, 1, 0, Math.PI * 2);
+    bgCtx.fillStyle = `rgba(180,185,210,${d.a * 0.45 + 0.04})`;
+    bgCtx.fill();
+    d.a += (Math.random() - 0.5) * 0.004;
+    d.a = Math.max(0.04, Math.min(0.3, d.a));
+  });
+
+  // FX canvas
+  fxCtx.clearRect(0, 0, 1280, 720);
+
+    // draw only animated connections (those with active packets)
+  connections.forEach(c => {
+    if (c.opacity <= 0 || !c.animated) return;
+    fxCtx.beginPath();
+    fxCtx.moveTo(c.x1, c.y1);
+    if (c.cx) {
+      fxCtx.bezierCurveTo(c.cx, c.cy, c.cx2 || c.cx, c.cy2 || c.cy, c.x2, c.y2);
+    } else {
+      fxCtx.lineTo(c.x2, c.y2);
+    }
+    fxCtx.strokeStyle = c.color || `rgba(192,57,43,${c.opacity})`;
+    fxCtx.lineWidth = c.width || 1.5;
+    fxCtx.setLineDash(c.dash || []);
+    fxCtx.stroke();
+    fxCtx.setLineDash([]);
+  });
+
+  // draw + update particles
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    fxCtx.beginPath();
+    fxCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    fxCtx.fillStyle = `rgba(${p.rgb},${p.life / p.maxLife * 0.8})`;
+    fxCtx.fill();
+    p.x += p.vx; p.y += p.vy;
+    p.r *= 0.97;
+    p.life--;
+  });
+
+  // draw + update packets
+  packets = packets.filter(p => p.t <= 1);
+  packets.forEach(p => {
+    p.t += p.speed;
+    const t = p.t;
+    let x, y;
+    if (p.cx) {
+      const mt = 1 - t;
+      x = mt * mt * p.x1 + 2 * mt * t * p.cx + t * t * p.x2;
+      y = mt * mt * p.y1 + 2 * mt * t * p.cy + t * t * p.y2;
+    } else {
+      x = p.x1 + (p.x2 - p.x1) * t;
+      y = p.y1 + (p.y2 - p.y1) * t;
+    }
+    // trail
+    for (let i = 0; i < 3; i++) {
+      particles.push({
+        x: x + (Math.random() - 0.5) * 4,
+        y: y + (Math.random() - 0.5) * 4,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        r: 2.5, rgb: p.rgb, life: 18, maxLife: 18
+      });
+    }
+    fxCtx.beginPath();
+    fxCtx.arc(x, y, 5, 0, Math.PI * 2);
+    fxCtx.fillStyle = `rgba(${p.rgb},0.9)`;
+    fxCtx.fill();
+    fxCtx.beginPath();
+    fxCtx.arc(x, y, 9, 0, Math.PI * 2);
+    fxCtx.fillStyle = `rgba(${p.rgb},0.25)`;
+    fxCtx.fill();
+  });
+
+  // progress
+  if (progressDuration > 0) {
+    const elapsed = performance.now() - progressStart;
+    progress.style.width = Math.min(100, (elapsed / progressDuration) * 100) + '%';
+  }
+}
+requestAnimationFrame(render);
+
+function spawnPacket(x1, y1, x2, y2, rgb, cx, cy, speed) {
+  packets.push({ x1, y1, x2, y2, rgb: rgb || '192,57,43', cx, cy, t: 0, speed: speed || 0.012 });
+}
+
+function addConnection(cfg) { /* static lines removed — packets only */ }
+function clearConnections() { connections = []; }
+
+// ── SCENE MANAGEMENT ──
+function showScene(idx) {
+  scenes.forEach((s, i) => {
+    s.classList.toggle('active', i === idx);
+    s.style.opacity = i === idx ? '1' : '0';
+  });
+  counter.textContent = String(idx + 1).padStart(2, '0') + ' / 09';
+  clearConnections();
+  packets = [];
+  particles = [];
+  setupScene(idx);
+}
+
+function setupScene(idx) {
+  if (idx === 0) setupS1();
+  else if (idx === 1) setupS2();
+  else if (idx === 2) setupS3();
+  else if (idx === 3) setupS4();
+  else if (idx === 4) setupS5();
+  else if (idx === 5) setupS6();
+  else if (idx === 6) setupS7();
+  else if (idx === 7) setupS8();
+  else if (idx === 8) setupS9();
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── SCENE 1 ──
+async function setupS1() {
+  const title = document.getElementById('s1Title');
+  const sub = document.getElementById('s1Sub');
+  const tag = document.getElementById('s1Tag');
+  title.style.opacity = '0'; title.style.transform = 'translateY(20px)';
+  sub.style.opacity = '0'; tag.style.opacity = '0';
+  await delay(400);
+  title.style.opacity = '1'; title.style.transform = 'translateY(0)';
+  await delay(800);
+  sub.style.opacity = '1';
+  await delay(600);
+  tag.style.opacity = '1';
+
+  // subtitle fade in
+  // subtitle already visible via CSS default opacity:1
+
+  // pulse connections from center
+  const cx = 640, cy = 360;
+  await delay(800);
+  const angles = [0, 40, 80, 120, 160, 200, 240, 280, 320];
+  angles.forEach((a, i) => {
+    setTimeout(() => {
+      const rad = a * Math.PI / 180;
+      const r = 260;
+      spawnPacket(cx, cy, cx + Math.cos(rad) * r, cy + Math.sin(rad) * r, '192,57,43', undefined, undefined, 0.018);
+    }, i * 120);
+  });
+}
+
+// ── SCENE 2 ──
+const agentOrder = ['ag-goku','ag-kira','ag-atlas','ag-pixel','ag-forge','ag-nova','ag-warden','ag-sentinel','ag-blaze','ag-flux','ag-sage','ag-stratos','s2-specialist-label'];
+
+// Agent intro captions shown one by one
+const agentIntros = {
+  'ag-goku':     'Goku — Orchestrator & Lead. Coordinates all agents, tracks every task.',
+  'ag-kira':     'Kira — Project Manager. Owns timelines, sprints, and delivery milestones.',
+  'ag-atlas':    'Atlas — System Architect. Designs the blueprint before a single line is written.',
+  'ag-pixel':    'Pixel — UI Designer. Crafts every screen, frame, and interaction pattern.',
+  'ag-forge':    'Forge — Backend Engineer. Builds APIs, services, and data logic.',
+  'ag-nova':     'Nova — Frontend Engineer. Assembles components, screens, and interactions.',
+  'ag-warden':   'Warden — Code Reviewer. Nothing passes without passing the Katich framework.',
+  'ag-sentinel': 'Sentinel — QA Engineer. Runs every test suite. Earns QA_PASS, never assumes it.',
+};
+
+const specialistIntros = {
+  'ag-blaze':  'Blaze — Mobile. Activates for native or cross-platform mobile features.',
+  'ag-flux':   'Flux — Data Eng. Joins when pipelines, warehouses, or ETL work is required.',
+  'ag-sage':   'Sage — AI/ML. Powers up for model training, inference, or intelligent features.',
+  'ag-stratos':'Stratos — DevOps. Owns infrastructure, CI/CD pipelines, and production rollout.',
+};
+
+async function setupS2() {
+  const s2Title = document.getElementById('s2Title');
+  s2Title.style.opacity = '0';
+
+  // reset all
+  agentOrder.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity = '0'; el.classList.remove('dim','lit'); }
+  });
+  document.getElementById('jiraBoard').style.opacity = '0';
+
+  // intro caption element
+  let caption = document.getElementById('s2-caption');
+  if (!caption) {
+    caption = document.createElement('div');
+    caption.id = 's2-caption';
+    caption.style.cssText = `
+      position:absolute; left:50%; top:64px; transform:translateX(-50%);
+      font-size:11px; font-weight:500; color:#555; letter-spacing:1px;
+      background:#fff; padding:5px 18px; border-radius:3px;
+      border-left:3px solid #C0392B; white-space:nowrap;
+      opacity:0; transition:opacity 0.35s ease; z-index:20;
+      box-shadow:0 2px 8px rgba(0,0,0,0.07);
+    `;
+    document.getElementById('s2').appendChild(caption);
+  }
+
+  const showCaption = async (text) => {
+    caption.style.opacity = '0';
+    await delay(150);
+    caption.textContent = text;
+    caption.style.opacity = '1';
+  };
+
+  const positions = {
+    'ag-goku':    { x: 597, y: 329 },
+    'ag-kira':    { x: 407, y: 219 },
+    'ag-atlas':   { x: 637, y: 169 },
+    'ag-pixel':   { x: 857, y: 219 },
+    'ag-forge':   { x: 417, y: 429 },
+    'ag-nova':    { x: 847, y: 429 },
+    'ag-warden':  { x: 497, y: 529 },
+    'ag-sentinel':{ x: 737, y: 529 },
+  };
+
+  await delay(300);
+  s2Title.style.opacity = '1';
+  await delay(300);
+
+  // ── introduce core agents one by one ──
+  const coreIds = ['ag-goku','ag-kira','ag-atlas','ag-pixel','ag-forge','ag-nova','ag-warden','ag-sentinel'];
+  for (let i = 0; i < coreIds.length; i++) {
+    if (currentScene !== 1) return;
+    const id = coreIds[i];
+    const el = document.getElementById(id);
+    if (!el) continue;
+
+    // dim all others that are already visible
+    coreIds.forEach(oid => {
+      const oel = document.getElementById(oid);
+      if (oel && oid !== id && parseFloat(oel.style.opacity) > 0) {
+        oel.style.transition = 'opacity 0.4s';
+        oel.style.opacity = '0.18';
+      }
+    });
+
+    // reveal this agent
+    el.style.transition = 'opacity 0.5s ease';
+    el.style.opacity = '1';
+
+    // show caption
+    await showCaption(agentIntros[id]);
+
+    // draw connection line from goku after goku itself appears
+    if (id !== 'ag-goku' && positions[id]) {
+      const g = positions['ag-goku'];
+      const p = positions[id];
+      addConnection({ x1: g.x, y1: g.y, x2: p.x, y2: p.y, color: `rgba(192,57,43,0.22)`, width: 1.2, dash: [4,4], opacity: 1 });
+      spawnPacket(g.x, g.y, p.x, p.y, '192,57,43', undefined, undefined, 0.022);
+    }
+
+    // show jira board when goku appears
+    if (id === 'ag-goku') {
+      await delay(300);
+      document.getElementById('jiraBoard').style.opacity = '1';
+    }
+
+    await delay(900);
+  }
+
+  // un-dim all core agents
+  coreIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.transition = 'opacity 0.5s'; el.style.opacity = '1'; }
+  });
+  await delay(400);
+
+  // ── introduce specialist agents ──
+  await showCaption('Specialist Agents — activate only when the work demands it.');
+  const specIds = ['ag-blaze','ag-flux','ag-sage','ag-stratos'];
+  document.getElementById('s2-specialist-label').style.opacity = '1';
+  for (let i = 0; i < specIds.length; i++) {
+    if (currentScene !== 1) return;
+    const id = specIds[i];
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.style.transition = 'opacity 0.45s ease';
+    el.style.opacity = '0.8';
+    await showCaption(specialistIntros[id]);
+    await delay(650);
+  }
+
+  // fade caption out
+  caption.style.opacity = '0';
+
+  // continuous pulsing
+  const doPulse = async () => {
+    while (currentScene === 1) {
+      const keys = Object.keys(positions).filter(k => k !== 'ag-goku');
+      const g = positions['ag-goku'];
+      const key = keys[Math.floor(Math.random() * keys.length)];
+      const p = positions[key];
+      spawnPacket(g.x, g.y, p.x, p.y, '192,57,43', undefined, undefined, 0.025);
+      await delay(500);
+    }
+  };
+  doPulse();
+}
+
+// ── SCENE 3 ──
+async function setupS3() {
+  const els = ['s3-label','s3-goku','s3-kira','s3-atlas','s3-doc','s3-sprint','s3-arch','s3-cp'];
+  els.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = '0';
+  });
+  document.getElementById('s3-cp-box').classList.remove('passed');
+  // subtitle stays visible
+
+  const all = ['s3-goku','s3-kira','s3-atlas'];
+  all.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('dim','lit');
+  });
+
+  await delay(200);
+  document.getElementById('s3-label').style.opacity = '1';
+  await delay(300);
+
+  // show nodes dim first
+  all.forEach(id => { const el = document.getElementById(id); if(el){el.style.opacity='0.2'; el.style.transition='opacity 0.5s';} });
+
+  // doc enters
+  const doc = document.getElementById('s3-doc');
+  doc.style.left = '-120px';
+  doc.style.opacity = '0';
+  await delay(400);
+  doc.style.transition = 'left 1.2s ease, opacity 0.5s';
+  doc.style.left = '60px';
+  doc.style.opacity = '1';
+  await delay(800);
+
+  // Goku lights up
+  const goku = document.getElementById('s3-goku');
+  goku.style.opacity = '1';
+  await delay(300);
+  spawnPacket(100, 330, 590, 330, '192,57,43', undefined, undefined, 0.018);
+  addConnection({ x1: 100, y1: 330, x2: 590, y2: 330, color: 'rgba(192,57,43,0.3)', width: 1.5, opacity: 1 });
+  await delay(800);
+
+  // Goku → Kira + Atlas
+  document.getElementById('s3-kira').style.opacity = '1';
+  document.getElementById('s3-atlas').style.opacity = '1';
+  spawnPacket(600, 330, 355, 220, '232,133,110', 480, 220, 0.016);
+  spawnPacket(600, 330, 835, 220, '110,141,232', 720, 220, 0.016);
+  addConnection({ x1: 600, y1: 330, x2: 355, y2: 220, color: 'rgba(232,133,110,0.35)', width: 1.5, opacity: 1, cx: 480, cy: 250 });
+  addConnection({ x1: 600, y1: 330, x2: 835, y2: 220, color: 'rgba(110,141,232,0.35)', width: 1.5, opacity: 1, cx: 720, cy: 250 });
+  await delay(1200);
+
+  // Kira sprint
+  document.getElementById('s3-sprint').style.transition = 'opacity 0.6s';
+  document.getElementById('s3-sprint').style.opacity = '1';
+  // Atlas arch
+  document.getElementById('s3-arch').style.transition = 'opacity 0.6s';
+  document.getElementById('s3-arch').style.opacity = '1';
+  await delay(1400);
+
+  // converge to checkpoint
+  const cp = document.getElementById('s3-cp');
+  cp.style.transition = 'opacity 0.5s';
+  cp.style.opacity = '1';
+  spawnPacket(355, 240, 640, 600, '232,133,110', 500, 500, 0.014);
+  spawnPacket(835, 240, 640, 600, '110,141,232', 740, 500, 0.014);
+  await delay(1800);
+  document.getElementById('s3-cp-box').classList.add('passed');
+  for (let i = 0; i < 5; i++) {
+    particles.push({ x: 640, y: 600, vx: (Math.random()-0.5)*3, vy: -Math.random()*3, r: 4, rgb: '0,168,135', life: 40, maxLife: 40 });
+  }
+  // subtitle already visible
+}
+
+// ── SCENE 4 ──
+async function setupS4() {
+  const ids = ['s4-atlas','s4-kira','s4-goku','s4-bp','s4-sp','s4-gate1','s4-gate2'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el){ el.style.opacity='0'; el.classList.remove('dim','lit'); }});
+  document.getElementById('s4-gate1-bar').classList.remove('open');
+  document.getElementById('s4-gate2-bar').classList.remove('open');
+  // subtitle stays visible
+
+  // build blueprint lines
+  const bpl = document.getElementById('bp-lines');
+  bpl.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('div');
+    d.className = 'blueprint-line';
+    d.style.cssText = `position:relative;height:1px;background:linear-gradient(90deg,transparent,#6e8de8,transparent);margin:6px 0;width:${50+Math.random()*50}%;opacity:1;transition:none;`;
+    bpl.appendChild(d);
+  }
+  const sl = document.getElementById('sprint-lanes');
+  sl.innerHTML = '';
+  const lanes = ['Sprint 1 – Infra & Auth', 'Sprint 2 – Core APIs', 'Sprint 3 – UI & Frontend', 'Sprint 4 – Integration'];
+  lanes.forEach((l, i) => {
+    const d = document.createElement('div');
+    d.style.cssText = `height:12px;background:#fff3ef;border-radius:3px;border-left:3px solid #e8856e;display:flex;align-items:center;padding:0 6px;font-size:7px;font-weight:600;color:#e8856e;letter-spacing:0.5px;`;
+    d.textContent = l;
+    sl.appendChild(d);
+  });
+
+  await delay(200);
+  document.getElementById('s4-label').style.opacity = '1';
+  await delay(300);
+
+  // atlas appears, blueprint
+  document.getElementById('s4-atlas').style.opacity = '1';
+  document.getElementById('s4-bp').style.transition = 'opacity 0.6s';
+  document.getElementById('s4-bp').style.opacity = '1';
+  addConnection({ x1: 265, y1: 295, x2: 640, y2: 220, color: 'rgba(110,141,232,0.3)', width: 1.5, opacity: 1, cx: 450, cy: 160 });
+  await delay(1000);
+
+  // gate1 - Atlas → Human
+  document.getElementById('s4-gate1').style.transition = 'opacity 0.5s';
+  document.getElementById('s4-gate1').style.opacity = '1';
+  spawnPacket(265, 295, 640, 230, '110,141,232', 450, 180, 0.016);
+  await delay(1400);
+  document.getElementById('s4-gate1-bar').classList.add('open');
+  document.getElementById('s4-goku').style.opacity = '1';
+
+  for (let i = 0; i < 8; i++) {
+    particles.push({ x: 640, y: 230, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, r: 3, rgb: '0,201,167', life: 35, maxLife: 35 });
+  }
+  await delay(1000);
+
+  // flow to kira + sprint
+  addConnection({ x1: 640, y1: 140, x2: 1010, y2: 295, color: 'rgba(232,133,110,0.3)', width: 1.5, opacity: 1, cx: 830, cy: 180 });
+  spawnPacket(640, 140, 1010, 295, '232,133,110', 830, 180, 0.016);
+  document.getElementById('s4-kira').style.opacity = '1';
+  await delay(1200);
+  document.getElementById('s4-sp').style.transition = 'opacity 0.6s';
+  document.getElementById('s4-sp').style.opacity = '1';
+  await delay(1000);
+
+  // gate2 - Kira → Human
+  document.getElementById('s4-gate2').style.transition = 'opacity 0.5s';
+  document.getElementById('s4-gate2').style.opacity = '1';
+  spawnPacket(1010, 295, 640, 440, '232,133,110', 830, 450, 0.014);
+  await delay(1500);
+  document.getElementById('s4-gate2-bar').classList.add('open');
+  for (let i = 0; i < 8; i++) {
+    particles.push({ x: 640, y: 440, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, r: 3, rgb: '0,168,135', life: 35, maxLife: 35 });
+  }
+  // subtitle always visible
+}
+
+// ── SCENE 5 ──
+async function setupS5() {
+  const ids = ['s5-pixel','s5-forge','s5-nova','s5-goku','s5-blaze','s5-flux','s5-sage','s5-frame1','s5-bepanel','s5-fepanel'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el){ el.style.opacity='0'; el.classList.remove('dim','lit'); }});
+  // subtitle stays visible
+
+  await delay(200);
+  document.getElementById('s5-label').style.opacity = '1';
+  await delay(400);
+
+  // pixel arrives + frame
+  document.getElementById('s5-pixel').style.opacity = '1';
+  await delay(500);
+  document.getElementById('s5-frame1').style.opacity = '1';
+  addConnection({ x1: 597, y1: 130, x2: 540, y2: 165, color: 'rgba(181,110,232,0.4)', width: 1.5, opacity: 1 });
+  await delay(800);
+
+  // design flows to build
+  spawnPacket(597, 135, 297, 370, '181,110,232', 450, 270, 0.015);
+  spawnPacket(597, 135, 897, 370, '181,110,232', 750, 270, 0.015);
+  addConnection({ x1: 597, y1: 135, x2: 297, y2: 370, color: 'rgba(181,110,232,0.2)', width: 1, opacity: 1, cx: 450, cy: 250 });
+  addConnection({ x1: 597, y1: 135, x2: 897, y2: 370, color: 'rgba(181,110,232,0.2)', width: 1, opacity: 1, cx: 750, cy: 250 });
+  await delay(1000);
+
+  document.getElementById('s5-forge').style.opacity = '1';
+  document.getElementById('s5-nova').style.opacity = '1';
+  document.getElementById('s5-bepanel').style.opacity = '1';
+  document.getElementById('s5-fepanel').style.opacity = '1';
+  await delay(600);
+
+  // goku
+  document.getElementById('s5-goku').style.opacity = '0.7';
+  addConnection({ x1: 597, y1: 360, x2: 297, y2: 380, color: 'rgba(192,57,43,0.2)', width: 1, dash: [4,4], opacity: 1, cx: 450, cy: 350 });
+  addConnection({ x1: 597, y1: 360, x2: 897, y2: 380, color: 'rgba(192,57,43,0.2)', width: 1, dash: [4,4], opacity: 1, cx: 750, cy: 350 });
+  await delay(800);
+
+  // specialists light up
+  document.getElementById('s5-blaze').style.opacity = '0.9';
+  document.getElementById('s5-flux').style.opacity = '0.9';
+  document.getElementById('s5-sage').style.opacity = '0.9';
+  addConnection({ x1: 297, y1: 390, x2: 140, y2: 510, color: 'rgba(232,176,110,0.3)', width: 1, opacity: 1 });
+  addConnection({ x1: 297, y1: 390, x2: 250, y2: 575, color: 'rgba(110,154,232,0.3)', width: 1, opacity: 1 });
+  addConnection({ x1: 897, y1: 390, x2: 1100, y2: 510, color: 'rgba(110,232,154,0.3)', width: 1, opacity: 1 });
+
+  // continuous build packets
+  // subtitle always visible
+
+  const buildPulse = async () => {
+    while (currentScene === 4) {
+      spawnPacket(297, 380, 597, 360, '232,150,110', undefined, undefined, 0.025);
+      await delay(600);
+      spawnPacket(897, 380, 597, 360, '110,232,181', undefined, undefined, 0.025);
+      await delay(600);
+    }
+  };
+  buildPulse();
+}
+
+// ── SCENE 6 ──
+async function setupS6() {
+  const ids = ['s6-warden','s6-forge','s6-nova','s6-panel','s6-gate','s6-katich','s6-reject'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el){ el.style.opacity='0'; el.classList.remove('dim','lit'); }});
+  document.getElementById('s6-gate-bar').classList.remove('open');
+  // subtitle stays visible
+
+  await delay(200);
+  document.getElementById('s6-label').style.opacity = '1';
+  await delay(400);
+
+  document.getElementById('s6-forge').style.opacity = '1';
+  document.getElementById('s6-nova').style.opacity = '1';
+  await delay(500);
+
+  // streams into panel
+  document.getElementById('s6-panel').style.opacity = '1';
+  document.getElementById('s6-katich').style.transition = 'opacity 0.5s';
+  document.getElementById('s6-katich').style.opacity = '1';
+  await delay(600);
+
+  // streams flowing to warden
+  document.getElementById('s6-warden').style.opacity = '1';
+  addConnection({ x1: 258, y1: 295, x2: 596, y2: 307, color: 'rgba(232,150,110,0.4)', width: 1.5, opacity: 1 });
+  addConnection({ x1: 975, y1: 295, x2: 634, y2: 307, color: 'rgba(110,232,181,0.4)', width: 1.5, opacity: 1 });
+
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => spawnPacket(258, 295, 596, 307, '232,150,110', undefined, undefined, 0.02), i * 600);
+    setTimeout(() => spawnPacket(975, 295, 634, 307, '110,232,181', undefined, undefined, 0.02), i * 600 + 300);
+  }
+  await delay(1500);
+
+  // scan highlights
+  const lines = ['cl1','cl2','cl3','cl4','cl5','cl6'];
+  const colors = ['#C0392B','#C0392B','#00c9a7','#00c9a7','#f39c12','#00c9a7'];
+  for (let i = 0; i < lines.length; i++) {
+    await delay(220);
+    const el = document.getElementById(lines[i]);
+    if (el) el.style.background = colors[i];
+  }
+  await delay(600);
+
+  // rejection
+  document.getElementById('s6-reject').style.transition = 'opacity 0.4s';
+  document.getElementById('s6-reject').style.opacity = '1';
+  spawnPacket(596, 307, 258, 295, '192,57,43', undefined, undefined, 0.018); // bounce back
+  await delay(1200);
+  document.getElementById('s6-reject').style.opacity = '0';
+
+  // re-enter + pass
+  spawnPacket(258, 295, 596, 307, '0,168,135', undefined, undefined, 0.018);
+  await delay(900);
+
+  // gate
+  document.getElementById('s6-gate').style.transition = 'opacity 0.5s';
+  document.getElementById('s6-gate').style.opacity = '1';
+  await delay(600);
+  document.getElementById('s6-gate-bar').classList.add('open');
+  for (let i = 0; i < 12; i++) {
+    particles.push({ x: 640 + (Math.random()-0.5)*100, y: 620, vx: (Math.random()-0.5)*3, vy: -Math.random()*3, r: 4, rgb: '0,168,135', life: 40, maxLife: 40 });
+  }
+  // subtitle always visible
+}
+
+// ── SCENE 7 ──
+async function setupS7() {
+  const ids = ['s7-sentinel','s7-forge','s7-nova','s7-grid-wrap','s7-gate','s7-reject','s7-inspect','s7-forge-bugs','s7-nova-bugs'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el){ el.style.opacity='0'; el.classList.remove('dim','lit'); }});
+  document.getElementById('s7-gate-bar').classList.remove('open');
+
+  // Positions
+  const forgeC  = { x: 138, y: 258 }; // left:80 + 56/2, top:220 + 56/2
+  const sentC   = { x: 608, y: 246 }; // left:536 + 72/2, top:210 + 72/2
+  const novaC   = { x: 1118, y: 258 }; // left:1090 + 56/2
+
+  // ── build test grid (20 cells, wider) ──
+  const grid = document.getElementById('testGrid');
+  grid.innerHTML = '';
+  const cells = [];
+  for (let i = 0; i < 20; i++) {
+    const c = document.createElement('div');
+    c.className = 'test-cell';
+    c.style.width = '20px'; c.style.height = '20px';
+    grid.appendChild(c);
+    cells.push(c);
+  }
+
+  // ── build Sentinel bug report ──
+  const bugs = [
+    { id:'BUG-01', label:'Null ref in AuthService',    owner:'forge', sev:'high'   },
+    { id:'BUG-02', label:'Race cond on token refresh', owner:'forge', sev:'high'   },
+    { id:'BUG-03', label:'CSS overflow on mobile',     owner:'nova',  sev:'medium' },
+    { id:'BUG-04', label:'Unhandled 404 on /profile',  owner:'nova',  sev:'low'    },
+  ];
+
+  const bugReport = document.getElementById('s7-bug-report');
+  bugReport.innerHTML = '';
+  const bugEls = {};
+  bugs.forEach(b => {
+    const row = document.createElement('div');
+    const sevColor = b.sev === 'high' ? '#C0392B' : b.sev === 'medium' ? '#e67e22' : '#888';
+    row.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;';
+    row.innerHTML = `
+      <span id="chk-${b.id}" style="width:14px;height:14px;border:1.5px solid #ccc;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all 0.4s;"></span>
+      <span style="font-size:8px;font-weight:600;color:${sevColor};letter-spacing:0.5px;">${b.id}</span>
+      <span style="font-size:7.5px;color:#555;flex:1;">${b.label}</span>
+      <span style="font-size:7px;padding:1px 5px;border-radius:8px;background:${sevColor}18;color:${sevColor};font-weight:700;">${b.sev}</span>
+    `;
+    bugReport.appendChild(row);
+    bugEls[b.id] = row.querySelector(`#chk-${b.id}`);
+  });
+
+  // ── build agent fix lists ──
+  const forgeBugs = bugs.filter(b => b.owner === 'forge');
+  const novaBugs  = bugs.filter(b => b.owner === 'nova');
+
+  const buildFixList = (containerId, bugList, color) => {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    const items = {};
+    bugList.forEach(b => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:7px;';
+      row.innerHTML = `
+        <span id="fix-${b.id}" style="width:13px;height:13px;border:1.5px solid #ccc;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all 0.5s;"></span>
+        <span style="font-size:7.5px;color:#555;flex:1;line-height:1.3;">${b.label}</span>
+      `;
+      el.appendChild(row);
+      items[b.id] = row.querySelector(`#fix-${b.id}`);
+    });
+    return items;
+  };
+
+  const forgeFixEls = buildFixList('forge-bug-list', forgeBugs, '#e8966e');
+  const novaFixEls  = buildFixList('nova-bug-list',  novaBugs,  '#3dbe96');
+
+  // helper: tick a checkbox
+  const tick = (el, pass, delay_ms) => new Promise(r => setTimeout(() => {
+    if (pass) {
+      el.style.border = '1.5px solid #00a887';
+      el.style.background = '#e8faf6';
+      el.style.color = '#00a887';
+      el.textContent = '✓';
+    } else {
+      el.style.border = '1.5px solid #C0392B';
+      el.style.background = '#fff0f0';
+      el.style.color = '#C0392B';
+      el.textContent = '✗';
+    }
+    r();
+  }, delay_ms));
+
+  // ── ANIMATION ──
+  await delay(200);
+  document.getElementById('s7-label').style.opacity = '1';
+  await delay(400);
+
+  // agents appear
+  document.getElementById('s7-forge').style.opacity = '1';
+  document.getElementById('s7-nova').style.opacity = '1';
+  document.getElementById('s7-sentinel').style.opacity = '1';
+
+  addConnection({ x1: forgeC.x, y1: forgeC.y, x2: sentC.x, y2: sentC.y, color: 'rgba(0,201,167,0.3)', width: 1.5, opacity: 1 });
+  addConnection({ x1: novaC.x, y1: novaC.y, x2: sentC.x, y2: sentC.y, color: 'rgba(0,201,167,0.3)', width: 1.5, opacity: 1 });
+  spawnPacket(forgeC.x, forgeC.y, sentC.x, sentC.y, '0,201,167', undefined, undefined, 0.016);
+  spawnPacket(novaC.x, novaC.y, sentC.x, sentC.y, '0,201,167', undefined, undefined, 0.016);
+  await delay(800);
+
+  // test grid sweeps
+  document.getElementById('s7-grid-wrap').style.opacity = '1';
+  await delay(300);
+  const failIdx = new Set([4, 13]);
+  for (let i = 0; i < cells.length; i++) {
+    await delay(60);
+    if (failIdx.has(i)) { cells[i].classList.add('fail'); cells[i].textContent = '✗'; }
+    else                 { cells[i].classList.add('pass'); cells[i].textContent = '✓'; }
+  }
+  await delay(400);
+
+  // Sentinel finds bugs → show inspect panel
+  document.getElementById('s7-inspect').style.opacity = '1';
+  await delay(300);
+
+  // Sentinel ticks bugs one by one (as FAIL first)
+  for (const b of bugs) {
+    await tick(bugEls[b.id], false, 0);
+    await delay(350);
+  }
+  await delay(400);
+
+  // Send to Forge + Nova
+  document.getElementById('s7-forge-bugs').style.opacity = '1';
+  document.getElementById('s7-nova-bugs').style.opacity = '1';
+  spawnPacket(sentC.x, sentC.y, forgeC.x, forgeC.y + 80, '232,150,110', undefined, undefined, 0.018);
+  spawnPacket(sentC.x, sentC.y, novaC.x,  novaC.y + 80,  '61,190,150',  undefined, undefined, 0.018);
+  await delay(500);
+
+  // reject banner
+  document.getElementById('s7-reject').style.opacity = '1';
+  await delay(600);
+
+  // Forge fixes its bugs
+  for (const b of forgeBugs) {
+    await delay(500);
+    forgeFixEls[b.id].style.border = '1.5px solid #e8966e';
+    forgeFixEls[b.id].style.background = '#fff8f0';
+    forgeFixEls[b.id].style.color = '#e8966e';
+    forgeFixEls[b.id].textContent = '…';
+    spawnPacket(forgeC.x, forgeC.y, sentC.x, sentC.y, '232,150,110', undefined, undefined, 0.02);
+    await delay(700);
+    forgeFixEls[b.id].style.border = '1.5px solid #00a887';
+    forgeFixEls[b.id].style.background = '#e8faf6';
+    forgeFixEls[b.id].style.color = '#00a887';
+    forgeFixEls[b.id].textContent = '✓';
+    await tick(bugEls[b.id], true, 0);
+  }
+
+  // Nova fixes its bugs
+  for (const b of novaBugs) {
+    await delay(450);
+    novaFixEls[b.id].style.border = '1.5px solid #3dbe96';
+    novaFixEls[b.id].style.background = '#f0fff8';
+    novaFixEls[b.id].style.color = '#3dbe96';
+    novaFixEls[b.id].textContent = '…';
+    spawnPacket(novaC.x, novaC.y, sentC.x, sentC.y, '61,190,150', undefined, undefined, 0.02);
+    await delay(700);
+    novaFixEls[b.id].style.border = '1.5px solid #00a887';
+    novaFixEls[b.id].style.background = '#e8faf6';
+    novaFixEls[b.id].style.color = '#00a887';
+    novaFixEls[b.id].textContent = '✓';
+    await tick(bugEls[b.id], true, 0);
+  }
+
+  await delay(400);
+  document.getElementById('s7-reject').style.opacity = '0';
+
+  // retest — all cells pass
+  cells.forEach(c => { c.classList.remove('fail'); c.classList.add('pass'); c.textContent = '✓'; });
+  spawnPacket(forgeC.x, forgeC.y, sentC.x, sentC.y, '0,168,135', undefined, undefined, 0.018);
+  spawnPacket(novaC.x, novaC.y, sentC.x, sentC.y, '0,168,135', undefined, undefined, 0.018);
+  await delay(700);
+
+  // gate opens
+  document.getElementById('s7-gate').style.opacity = '1';
+  await delay(600);
+  document.getElementById('s7-gate-bar').classList.add('open');
+  for (let i = 0; i < 18; i++) {
+    particles.push({ x: 640 + (Math.random()-0.5)*140, y: 618, vx: (Math.random()-0.5)*4, vy: -Math.random()*3.5, r: 4, rgb: '0,168,135', life: 50, maxLife: 50 });
+  }
+}
+
+// ── SCENE 8 ──
+async function setupS8() {
+  const ids = ['s8-lock','s8-unlock','s8-stratos','s8-env1','s8-env2','s8-env3','s8-env4','s8-env5','s8-live'];
+  ids.forEach(id => { const el = document.getElementById(id); if(el) el.style.opacity = '0'; });
+
+  await delay(200);
+  document.getElementById('s8-label').style.opacity = '1';
+  await delay(400);
+
+  document.getElementById('s8-lock').style.opacity = '1';
+  await delay(900);
+
+  document.getElementById('s8-unlock').style.opacity = '1';
+  await delay(600);
+
+  // stratos appears below the unlock arrow
+  document.getElementById('s8-stratos').style.opacity = '1';
+  // arrow from unlock text down to stratos node
+  spawnPacket(640, 108, 604, 160, '110,195,232', undefined, undefined, 0.022);
+  addConnection({ x1: 640, y1: 108, x2: 604, y2: 160, color: 'rgba(110,195,232,0.4)', width: 1.5, opacity: 1 });
+  await delay(800);
+
+  // cloud env nodes — positions match updated HTML above
+  // env centers: env1→106, env2→276, env3→565, env4→868, env5→1068  (left + width/2)
+  // env top+height/2: 290+42 = 332
+  const envs  = ['s8-env1','s8-env2','s8-env3','s8-env4','s8-env5'];
+  const envX  = [106,  276,  565,  868, 1068];
+  const envY  = 332;
+  const stratX = 604; // stratos center: left:570 + 68/2
+  const stratY = 216; // stratos center: top:148 + 68/2
+
+  for (let i = 0; i < envs.length; i++) {
+    await delay(260);
+    document.getElementById(envs[i]).style.opacity = '1';
+    spawnPacket(stratX, stratY, envX[i], envY, '110,195,232', undefined, undefined, 0.022);
+    addConnection({ x1: stratX, y1: stratY, x2: envX[i], y2: envY, color: 'rgba(110,195,232,0.22)', width: 1.2, opacity: 1 });
+  }
+  await delay(1000);
+
+  // production burst
+  for (let i = 0; i < 20; i++) {
+    particles.push({ x: 565 + (Math.random()-0.5)*60, y: 332, vx: (Math.random()-0.5)*5, vy: -Math.random()*5, r: 5, rgb: '0,168,135', life: 55, maxLife: 55 });
+  }
+  document.getElementById('s8-live').style.opacity = '1';
+}
+
+// ── SCENE 9 ──
+async function setupS9() {
+  const els = ['f1','f2','fLogo','f3'];
+  els.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity = '0'; el.style.transition = 'none'; }
+  });
+
+  // Corner decorative nodes — well clear of the central text block
+  const nodes9 = [
+    [80,  60], [400, 40], [880, 40], [1200, 60],
+    [60, 660], [380,680], [900,680], [1220,640]
+  ];
+  nodes9.forEach(([x, y]) => {
+    addConnection({ x1: 640, y1: 310, x2: x, y2: y, color: 'rgba(192,57,43,0.1)', width: 1, dash: [3,7], opacity: 1 });
+  });
+  nodes9.forEach(([x, y]) => {
+    particles.push({ x, y, vx: 0, vy: 0, r: 5, rgb: '192,57,43', life: 999999, maxLife: 999999 });
+  });
+
+  const pulse9 = async () => {
+    while (currentScene === 8) {
+      const n = nodes9[Math.floor(Math.random() * nodes9.length)];
+      spawnPacket(640, 310, n[0], n[1], '192,57,43', undefined, undefined, 0.018);
+      await delay(380);
+      spawnPacket(n[0], n[1], 640, 310, '0,168,135', undefined, undefined, 0.018);
+      await delay(380);
+    }
+  };
+  pulse9();
+
+  await delay(300);
+  const f1 = document.getElementById('f1');
+  f1.style.transition = 'opacity 1s ease';
+  f1.style.opacity = '1';
+  await delay(1000);
+  const f2 = document.getElementById('f2');
+  f2.style.transition = 'opacity 1s ease';
+  f2.style.opacity = '1';
+  await delay(800);
+  const fL = document.getElementById('fLogo');
+  fL.style.transition = 'opacity 1.2s ease';
+  fL.style.opacity = '1';
+  await delay(600);
+  const f3 = document.getElementById('f3');
+  f3.style.transition = 'opacity 1s ease';
+  f3.style.opacity = '1';
+}
+
+// Boot — auto-loop, no controls
+showScene(0);
+startLoop();
+</script>
+</body>
+</html>

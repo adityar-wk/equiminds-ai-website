@@ -1,0 +1,669 @@
+import { motion } from 'motion/react';
+import { Link } from 'react-router-dom';
+import { HeroScene } from '@/src/components/HeroScene';
+import { 
+  ArrowRight, 
+  PlayCircle, 
+  Search, 
+  Sparkles, 
+  Code, 
+  Bot, 
+  Database, 
+  Cloud, 
+  ShieldCheck,
+  Users,
+  UserPlus,
+  Rocket,
+  Laptop,
+  Puzzle,
+  Zap,
+  Target,
+  FastForward,
+  ClipboardCheck,
+  Lightbulb,
+  Palette,
+  Layers,
+  Server
+} from 'lucide-react';
+import { cn } from '@/src/lib/utils';
+import { TiltCard } from '@/src/components/TiltCard';
+
+export function Home() {
+  return (
+    <div className="pt-20">
+      {/* Hero Section */}
+      <section className="relative min-h-[90vh] flex items-center px-6 overflow-hidden">
+        <HeroScene />
+        <div className="max-w-7xl mx-auto w-full flex flex-col items-center text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-3xl"
+          >
+            <h1 className="text-4xl md:text-6xl font-display font-light leading-[1.2] mb-6">
+              Intelligent AI Solutions. <br />
+              <span className="text-gray-600">Practical. Ethical. Scalable.</span>
+            </h1>
+            <p className="text-xl text-gray-600 font-light italic mb-8 mx-auto max-w-2xl leading-relaxed">
+              We will help you <span className="bg-brand/10 text-brand px-1.5 py-0.5 rounded font-medium">cut the clutter around AI</span> and tailor AI to solve your real world business problems
+            </p>
+            <p className="text-lg text-gray-700 mb-10 mx-auto max-w-xl font-light leading-relaxed">
+              <span className="bg-brand/10 text-brand px-2 py-1 rounded font-medium">Get to Production Grade in Weeks, Not Months</span>
+            </p>
+            <div className="flex flex-wrap gap-6 justify-center">
+              <button className="px-8 py-4 bg-brand text-white font-medium hover:bg-brand-dark transition-all flex items-center gap-2">
+                Talk to EquiMinds <ArrowRight size={18} />
+              </button>
+              <Link to="/offerings" className="px-8 py-4 border border-gray-200 font-medium hover:bg-gray-50 transition-all flex items-center gap-2">
+                Explore Our Offerings <ArrowRight size={18} />
+              </Link>
+              <button 
+                onClick={() => document.getElementById('quick-start')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 border border-brand text-brand font-medium hover:bg-brand hover:text-white transition-all flex items-center gap-2"
+              >
+                Quick Start AI Services <ArrowRight size={18} />
+              </button>
+            </div>
+            
+            <div className="mt-16 flex flex-wrap justify-center gap-4">
+              {[
+                "150+ AI STACK ENGINEERS",
+                "6+ YEARS SINCE 2019",
+                "30+ GLOBAL CLIENTS",
+                "40+ TURNKEY PROJECTS"
+              ].map((stat, idx) => (
+                <motion.div 
+                  key={idx}
+                  whileHover={{ y: -2 }}
+                  className="px-4 py-2 bg-white border border-gray-100 text-[9px] font-bold tracking-[0.2em] text-gray-500 rounded-none shadow-sm hover:shadow-md hover:border-brand/20 transition-all cursor-default"
+                >
+                  {stat}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Clients Section */}
+      <section className="py-12 border-y border-gray-100 bg-white overflow-hidden">
+        <div className="flex items-center gap-12 animate-marquee whitespace-nowrap">
+          {[
+            'upGrad', 'Akamai', 'Cumulations', 'Pixid', 'Palette', 'MorphBots', 'Xelp', 'Aditya Birla Group', 'Geeky Ants',
+            'upGrad', 'Akamai', 'Cumulations', 'Pixid', 'Palette', 'MorphBots', 'Xelp', 'Aditya Birla Group', 'Geeky Ants'
+          ].map((client, idx) => (
+            <span key={idx} className="text-2xl font-display font-light text-gray-300 uppercase tracking-widest px-8">
+              {client}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Offerings Summary Section */}
+      <section className="py-16 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className="max-w-2xl">
+              <span className="text-xs font-medium tracking-widest uppercase text-brand mb-4 block">Our Capabilities</span>
+              <h2 className="text-4xl md:text-5xl font-display font-light leading-tight">
+                Four Dimensions of <br />
+                <span className="text-gray-600 italic">AI Services</span>
+              </h2>
+              <p className="mt-4 text-gray-600 font-light italic">
+                We don't treat AI as a feature, but as the operating system - Built for New Reality not retrofitted.
+              </p>
+            </div>
+            <Link 
+              to="/offerings" 
+              className="group flex items-center gap-3 text-sm font-medium tracking-wider uppercase hover:text-brand transition-colors"
+            >
+              View All Offerings 
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {[
+              { title: 'AI Orchestration', desc: 'From single prompts to full business workflows — we build the agent infrastructure that runs your operations.' },
+              { title: 'AI Optimization', desc: 'Every token counts. We make your AI faster, leaner, and dramatically cheaper to run at scale.' },
+              { title: 'Private AI', desc: 'AI, entirely within your walls — sovereign, secure, and fully yours.' },
+              { title: 'Prescriptive AI', desc: 'Move Beyond predictions — AI that tells you exactly what to do next, and gets smarter every time you do it.' },
+            ].map((pillar, idx) => (
+              <div
+                key={pillar.title}
+                className="group"
+              >
+                <h3 className="text-xl font-light mb-4 group-hover:text-brand transition-colors">{pillar.title}</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">{pillar.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How we Deliver Section */}
+      <section className="py-16 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <span className="text-xs font-medium tracking-widest uppercase text-brand mb-4 block">Our Process</span>
+          <h2 className="text-3xl md:text-5xl font-display font-light leading-tight mb-4">
+            How we deliver ?
+          </h2>
+          <p className="text-lg text-gray-600 font-light mb-12">
+            Two delivery modes. Three engagement models. One AI-native partner.
+          </p>
+
+          {/* Delivery Modes */}
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
+            {/* Olympus Mode */}
+            <TiltCard className="bg-surface text-ink p-8 border border-gray-100 group shadow-sm hover:shadow-md transition-all rounded-none">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-brand/5 rounded-none">
+                  <Bot className="text-brand" size={28} />
+                </div>
+                <h3 className="text-2xl font-display font-light text-brand">Olympus Mode</h3>
+              </div>
+              <p className="text-lg mb-6 font-display font-light">AI agents deliver. Humans govern.</p>
+              <p className="text-xs text-gray-600 italic mb-8 font-light">
+                Best for: greenfield products, new builds, MVPs, v1 launches
+              </p>
+              <div className="flex gap-4 text-[10px] font-mono text-brand/70 uppercase tracking-widest">
+                <span>12 agents</span>
+                <span>•</span>
+                <span>gated pipeline</span>
+                <span>•</span>
+                <span>spec to production</span>
+              </div>
+            </TiltCard>
+
+            {/* Engineer Mode */}
+            <TiltCard className="bg-surface text-ink p-8 border border-gray-100 group shadow-sm hover:shadow-md transition-all rounded-none">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-brand/5 rounded-none">
+                  <Laptop className="text-brand" size={28} />
+                </div>
+                <h3 className="text-2xl font-display font-light text-brand">Engineer Mode</h3>
+              </div>
+              <p className="text-lg mb-6 font-display font-light">AI-augmented engineers deliver. AI tools accelerate.</p>
+              <p className="text-xs text-gray-600 italic mb-8 font-light">
+                Best for: existing codebases, legacy modernization, enterprise systems
+              </p>
+              <div className="flex gap-4 text-[10px] font-mono text-brand/70 uppercase tracking-widest">
+                <span>150+ engineers</span>
+                <span>•</span>
+                <span>Cursor</span>
+                <span>•</span>
+                <span>Claude Code</span>
+                <span>•</span>
+                <span>Claude Cowork</span>
+              </div>
+            </TiltCard>
+          </div>
+
+          <p className="text-xl md:text-2xl text-gray-600 font-display font-light italic text-center mb-10">
+            Built for Speed.
+          </p>
+
+          {/* Engagement Models */}
+          <div className="text-center mb-10">
+            <h4 className="text-xs font-bold tracking-[0.4em] uppercase text-brand">Three Engagement Models</h4>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-16">
+            {[
+              {
+                title: 'Olympus Build',
+                mode: 'Olympus Mode',
+                modeColor: 'text-brand border-brand/20 bg-brand/5',
+                icon: Rocket,
+                iconColor: 'text-brand',
+                desc: 'Turnkey AI delivery — AI agents build your product end-to-end with human governance at every gate.'
+              },
+              {
+                title: 'Dedicated AI Team',
+                mode: 'Engineer Mode',
+                modeColor: 'text-brand border-brand/20 bg-brand/5',
+                icon: Users,
+                iconColor: 'text-brand',
+                desc: 'Embedded cross-functional squad — sprint-based, long-term, scaling with your product roadmap.'
+              },
+              {
+                title: 'Dedicated AI Engineers',
+                mode: 'Engineer Mode',
+                modeColor: 'text-brand border-brand/20 bg-brand/5',
+                icon: Puzzle,
+                iconColor: 'text-brand',
+                desc: 'AI Stack Engineers plugged into your team — Claude Certified, enterprise-ready, zero ramp-up.'
+              }
+            ].map((model, idx) => (
+              <TiltCard key={idx} className="bg-surface text-ink p-6 border border-gray-100 flex flex-col h-full shadow-sm hover:shadow-md transition-all rounded-none">
+                <div className="mb-6">
+                  <model.icon className={cn("mb-4", model.iconColor)} size={24} />
+                  <h5 className="text-lg font-medium mb-2">{model.title}</h5>
+                  <span className={cn("inline-block px-2 py-0.5 border text-[9px] font-mono uppercase tracking-wider mb-4", model.modeColor)}>
+                    {model.mode}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 font-light leading-relaxed mt-auto">
+                  {model.desc}
+                </p>
+              </TiltCard>
+            ))}
+          </div>
+
+          <div className="pt-12 border-t border-gray-100 text-center mb-16">
+            <p className="text-sm italic font-light text-gray-600 max-w-4xl mx-auto">
+              We use a 12-parameter, 48-point Delivery Mode Assessment to determine the right mode for every engagement — <span className="text-brand">structured, scored, transparent.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Olympus in Action */}
+      <section className="py-24 px-6 bg-[#f8f8f8] border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="text-xs font-medium tracking-widest uppercase text-brand mb-4 block">See It Live</span>
+            <h2 className="text-4xl md:text-5xl font-display font-light leading-tight mb-4">
+              Olympus in Action
+            </h2>
+            <p className="text-lg text-gray-600 font-light max-w-2xl mx-auto">
+              Watch how Olympus orchestrates agents, routes intelligence, and delivers outcomes — end to end.
+            </p>
+          </div>
+
+          {/* Responsive iframe wrapper — preserves 16:9 aspect ratio */}
+          <div className="relative w-full shadow-xl" style={{ aspectRatio: '16/9' }}>
+            <iframe
+              src="/olympus-animation.html"
+              title="Olympus in Action"
+              className="absolute inset-0 w-full h-full border-0"
+              allow="autoplay"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* How we are Organized Section */}
+      <section className="py-16 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-xs font-medium tracking-widest uppercase text-brand mb-4 block">Our Structure</span>
+            <h2 className="text-4xl md:text-5xl font-display font-light leading-tight mb-4">
+              How we are organized
+            </h2>
+            <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto">
+              Seven specialized teams — built for the AI era, with a seamless flow of intelligence.
+            </p>
+          </div>
+
+          {/* Isometric diagram with callout labels */}
+          <div className="relative w-full select-none" style={{ aspectRatio: '16/7' }}>
+            <img
+              src="/isometric-org.png"
+              alt="EquiMinds Organisation Structure"
+              className="absolute inset-0 w-full h-full object-contain"
+            />
+
+            {/* SVG callout lines — tuned to this image's zones */}
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              viewBox="0 0 1000 440"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              {/* AI Solution & Strategy — small top-left elevated platform */}
+              <line x1="152" y1="68" x2="305" y2="44" stroke="#A63E2D" strokeWidth="1" />
+              <circle cx="152" cy="68" r="3.5" fill="#A63E2D" />
+
+              {/* AI Orchestration & Agent Engineering — large upper-left main floor */}
+              <line x1="248" y1="178" x2="190" y2="218" stroke="#A63E2D" strokeWidth="1" />
+              <circle cx="248" cy="178" r="3.5" fill="#A63E2D" />
+
+              {/* Product & Platform Engineering — stacked-box section upper-center-right */}
+              <line x1="590" y1="130" x2="590" y2="98" stroke="#A63E2D" strokeWidth="1" />
+              <circle cx="590" cy="130" r="3.5" fill="#A63E2D" />
+
+              {/* Experience & Intelligent Design — large tilted screen far upper-right */}
+              <line x1="822" y1="128" x2="868" y2="132" stroke="#A63E2D" strokeWidth="1" />
+              <circle cx="822" cy="128" r="3.5" fill="#A63E2D" />
+
+              {/* Data & Intelligence Engineering — lower-center-right data/book area */}
+              <line x1="630" y1="278" x2="820" y2="248" stroke="#A63E2D" strokeWidth="1" />
+              <circle cx="630" cy="278" r="3.5" fill="#A63E2D" />
+
+              {/* AI Infrastructure & ML Ops — lower-right server racks */}
+              <line x1="780" y1="332" x2="822" y2="306" stroke="#A63E2D" strokeWidth="1" />
+              <circle cx="780" cy="332" r="3.5" fill="#A63E2D" />
+
+              {/* AI Quality & Governance — large bottom-left governance platform */}
+              <line x1="218" y1="358" x2="80" y2="342" stroke="#A63E2D" strokeWidth="1" />
+              <circle cx="218" cy="358" r="3.5" fill="#A63E2D" />
+            </svg>
+
+            {/* Labels — positioned as % of container */}
+            {[
+              {
+                label: 'AI Solution & Strategy',
+                sub: 'Process-to-agent mapping · AI diagnostics',
+                style: { top: '8%', left: '30%' },
+              },
+              {
+                label: 'AI Orchestration & Agent Engineering',
+                sub: 'Multi-agent pipelines · RAG · LLM orchestration',
+                style: { top: '48%', left: '0%' },
+              },
+              {
+                label: 'Product & Platform Engineering',
+                sub: 'React · Next.js · Spring Boot · FastAPI · Go',
+                style: { top: '16%', left: '54%' },
+              },
+              {
+                label: 'Experience & Intelligent Design',
+                sub: 'Generative UI · Conversational UX · Voice',
+                style: { top: '28%', right: '0%' },
+              },
+              {
+                label: 'Data & Intelligence Engineering',
+                sub: 'Embeddings · Vector DBs · Knowledge bases',
+                style: { top: '53%', right: '0%' },
+              },
+              {
+                label: 'AI Infrastructure & ML Ops',
+                sub: 'Model serving · LLM gateways · GPU scaling',
+                style: { top: '66%', right: '0%' },
+              },
+              {
+                label: 'AI Quality & Governance',
+                sub: 'Agent testing · Hallucination detection · Compliance',
+                style: { top: '74%', left: '0%' },
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.08 }}
+                className="absolute"
+                style={item.style}
+              >
+                <p className="text-[11px] font-bold text-ink leading-tight whitespace-nowrap">{item.label}</p>
+                <p className="text-[9px] text-gray-500 font-light mt-0.5 whitespace-nowrap hidden md:block">{item.sub}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-16 text-center">
+            <p className="text-2xl md:text-3xl text-gray-600 font-display font-light italic">
+              Hardened by traditional development, supercharged by AI.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Start AI Services Section */}
+      <section id="quick-start" className="py-16 px-6 bg-white border-t border-gray-100 relative overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none">
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/5 border border-brand/10 text-brand text-[10px] font-bold uppercase tracking-widest mb-6">
+              <Sparkles size={12} /> Quick Start
+            </div>
+            <h2 className="text-4xl md:text-6xl font-display font-light leading-tight mb-6">
+              Validate AI Potential, <br />
+              <span className="text-gray-600 italic">Inside Your Business.</span>
+            </h2>
+            <p className="text-lg text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
+              Low-risk, high-impact entry points designed to validate your AI strategy and demonstrate value in weeks, not months.
+            </p>
+          </div>
+
+          {/* 3×2 card grid — icon, uppercase title, description */}
+          <div className="grid grid-cols-1 md:grid-cols-3 border-t border-l border-brand/15">
+            {[
+              { title: 'AI Readiness Audit', desc: 'Comprehensive evaluation of your data, infrastructure, and team to identify the most viable AI opportunities.', icon: ClipboardCheck },
+              { title: 'Agentic Workflow POC', desc: 'A 72-hour proof-of-concept demonstrating autonomous agents automating a core business process end-to-end.', icon: Zap },
+              { title: 'AI in Week Sprint', desc: 'Rapid architecture and UX prototyping to blueprint your next AI-native product in just 5 days.', icon: FastForward },
+              { title: 'AI Cost & Risk Audit', desc: 'Deep-dive assessment of AI operational costs, security vulnerabilities, and implementation risks.', icon: ShieldCheck },
+              { title: 'Executive Immersion', desc: 'High-impact session for leadership teams to understand AI capabilities and prioritize strategic initiatives.', icon: Users },
+              { title: 'AI Strategy Roadmap', desc: 'A multi-phased execution plan tailored to your business goals, ensuring long-term AI success.', icon: Target },
+            ].map((service, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.07 }}
+                className="group p-10 border-r border-b border-brand/15 hover:bg-brand/5 transition-colors duration-300 cursor-default"
+              >
+                <service.icon size={32} strokeWidth={1.25} className="text-brand mb-8 group-hover:scale-110 transition-transform duration-300" />
+                <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-ink mb-4 leading-snug">
+                  {service.title}
+                </h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">
+                  {service.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-20 flex justify-center">
+            <button className="px-10 py-5 bg-brand text-white font-medium hover:bg-brand-dark transition-all flex items-center gap-3 group">
+              Start Your AI Journey
+              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-16 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <span className="text-xs font-bold tracking-[0.3em] uppercase text-brand mb-4 block">Client Voices</span>
+            <h2 className="text-3xl md:text-5xl font-display font-light leading-tight">
+              Trusted by Leaders, <br />
+              <span className="text-gray-600 italic">Across Industries.</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
+            {[
+              {
+                quote: "They've gone above and beyond expectations, delivering work promptly. Overall, they've stood out for their transparency and team management skills.",
+                name: "Sandipan",
+                title: "CEO, XELPMOC"
+              },
+              {
+                quote: "Webknot stepped up when we were in need of a reliable software vendor and did a great job supporting us on our development needs.",
+                name: "Manigandan",
+                title: "Principal Architect, Aditya Birla Group"
+              },
+              {
+                quote: "Our experience with the team has been exceptional. Starting with mobile app development, which now has over 1.2 million downloads, they continue to support us as a managed services provider across multiple platforms, including operations for our 20 malls.",
+                name: "Kiran Cornelio",
+                title: "Director Digital & PMO, CENOMI"
+              }
+            ].map((t, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="p-8 border border-gray-200 rounded-none flex flex-col gap-6 hover:shadow-xl hover:border-transparent transition-all duration-300 group"
+              >
+                <p className="text-gray-700 font-light leading-relaxed text-sm italic flex-1">
+                  "{t.quote}"
+                </p>
+                <div>
+                  <p className="font-medium text-ink text-sm">{t.name}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand mt-1">{t.title}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Case Studies Carousel Section */}
+      <section className="py-16 bg-white text-ink border-t border-gray-100 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-12">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+            <div>
+              <span className="text-xs font-bold tracking-[0.3em] uppercase text-brand mb-4 block">Success Stories</span>
+              <h2 className="text-3xl md:text-5xl font-display font-light leading-tight">
+                Case Studies <br />
+                <span className="text-gray-600 italic">& Impact.</span>
+              </h2>
+            </div>
+            <Link 
+              to="/case-studies" 
+              className="group flex items-center gap-3 text-xs font-bold tracking-widest uppercase hover:text-brand transition-colors"
+            >
+              View All Projects 
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Marquee Carousel */}
+        <div className="relative flex overflow-hidden group/marquee">
+          <div className="flex gap-6 animate-marquee-slow hover:[animation-play-state:paused] py-6">
+            {[
+              {
+                id: 'vizai',
+                title: 'VizAI',
+                category: 'Data Visualization',
+                image: 'https://picsum.photos/seed/vizai/800/600',
+                desc: 'Natural language interface for complex data analytics.'
+              },
+              {
+                id: 'clearvisa',
+                title: 'ClearVisa',
+                category: 'AI Agents',
+                image: 'https://picsum.photos/seed/visa/800/600',
+                desc: 'AI-powered embassy interview simulation and prep.'
+              },
+              {
+                id: 'chorus',
+                title: 'Chorus',
+                category: 'Marketing Ops',
+                image: 'https://picsum.photos/seed/chorus/800/600',
+                desc: 'Multi-agent platform for automated marketing workflows.'
+              },
+              {
+                id: 'hermes',
+                title: 'Hermes',
+                category: 'Logistics AI',
+                image: 'https://picsum.photos/seed/logistics/800/600',
+                desc: 'Predictive supply chain optimization for global retail.'
+              },
+              // Duplicate for seamless loop
+              {
+                id: 'vizai-2',
+                title: 'VizAI',
+                category: 'Data Visualization',
+                image: 'https://picsum.photos/seed/vizai/800/600',
+                desc: 'Natural language interface for complex data analytics.'
+              },
+              {
+                id: 'clearvisa-2',
+                title: 'ClearVisa',
+                category: 'AI Agents',
+                image: 'https://picsum.photos/seed/visa/800/600',
+                desc: 'AI-powered embassy interview simulation and prep.'
+              }
+            ].map((study, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.02, y: -5 }}
+                className="w-[320px] shrink-0 bg-surface border border-gray-100 rounded-none overflow-hidden group/card transition-all duration-500"
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img 
+                    src={study.image} 
+                    alt={study.title} 
+                    className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="p-6">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-brand mb-2 block">{study.category}</span>
+                  <h3 className="text-xl font-display font-light mb-3">{study.title}</h3>
+                  <p className="text-xs text-gray-600 font-light leading-relaxed mb-4 line-clamp-2">{study.desc}</p>
+                  <Link 
+                    to="/case-studies" 
+                    className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 group-hover/card:text-brand transition-colors"
+                  >
+                    Read Case Study <ArrowRight size={12} />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-16 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="text-xs font-bold tracking-[0.3em] uppercase text-brand mb-4 block">Stay Informed</span>
+              <h2 className="text-3xl md:text-5xl font-display font-light leading-tight mb-6">
+                The AI Era, <br />
+                <span className="text-gray-600 italic">Delivered Weekly.</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-light leading-relaxed mb-8">
+                Join 5,000+ technology leaders receiving our weekly deep-dives into AI strategy, agentic workflows, and architectural blueprints.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  className="flex-1 px-5 py-3 bg-surface border border-gray-100 rounded-none focus:outline-none focus:border-brand transition-colors text-sm"
+                />
+                <button className="px-8 py-3 bg-brand text-white font-medium rounded-none hover:bg-brand-dark transition-all text-sm">
+                  Subscribe
+                </button>
+              </div>
+              <p className="mt-4 text-[10px] text-gray-400">
+                No spam. Just high-signal AI insights. Unsubscribe anytime.
+              </p>
+            </div>
+            <div className="relative aspect-video lg:aspect-square overflow-hidden bg-surface border border-gray-100">
+              <img 
+                src="https://picsum.photos/seed/ai-agents-working/1200/1200" 
+                alt="AI Agents Working" 
+                className="w-full h-full object-cover opacity-90"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-brand/10 to-transparent pointer-events-none"></div>
+              {/* Decorative elements to suggest animation/activity */}
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute top-1/4 left-1/4 w-32 h-32 bg-brand/10 rounded-full blur-3xl"
+              />
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.2, 0.5, 0.2]
+                }}
+                transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+                className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-brand/5 rounded-full blur-3xl"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  );
+}
