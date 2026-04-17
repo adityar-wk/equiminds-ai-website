@@ -24,3 +24,7 @@ Thumbs.db
 # Firebase
 .firebase/
 .claude/
+
+# Server secrets — NEVER commit .env
+server/.env
+server/node_modules/
