@@ -297,100 +297,13 @@ export function Home() {
             </p>
           </div>
 
-          {/* Isometric diagram with callout labels */}
-          <div className="relative w-full select-none" style={{ aspectRatio: '16/7' }}>
+          {/* Isometric org chart */}
+          <div className="w-full">
             <img
               src="/isometric-org.png"
               alt="EquiMinds Organisation Structure"
-              className="absolute inset-0 w-full h-full object-contain"
+              className="w-full h-auto object-contain"
             />
-
-            {/* SVG callout lines — tuned to this image's zones */}
-            <svg
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              viewBox="0 0 1000 440"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              {/* AI Solution & Strategy — small top-left elevated platform */}
-              <line x1="152" y1="68" x2="305" y2="44" stroke="#A63E2D" strokeWidth="1" />
-              <circle cx="152" cy="68" r="3.5" fill="#A63E2D" />
-
-              {/* AI Orchestration & Agent Engineering — large upper-left main floor */}
-              <line x1="248" y1="178" x2="190" y2="218" stroke="#A63E2D" strokeWidth="1" />
-              <circle cx="248" cy="178" r="3.5" fill="#A63E2D" />
-
-              {/* Product & Platform Engineering — stacked-box section upper-center-right */}
-              <line x1="590" y1="130" x2="590" y2="98" stroke="#A63E2D" strokeWidth="1" />
-              <circle cx="590" cy="130" r="3.5" fill="#A63E2D" />
-
-              {/* Experience & Intelligent Design — large tilted screen far upper-right */}
-              <line x1="822" y1="128" x2="868" y2="132" stroke="#A63E2D" strokeWidth="1" />
-              <circle cx="822" cy="128" r="3.5" fill="#A63E2D" />
-
-              {/* Data & Intelligence Engineering — lower-center-right data/book area */}
-              <line x1="630" y1="278" x2="820" y2="248" stroke="#A63E2D" strokeWidth="1" />
-              <circle cx="630" cy="278" r="3.5" fill="#A63E2D" />
-
-              {/* AI Infrastructure & ML Ops — lower-right server racks */}
-              <line x1="780" y1="332" x2="822" y2="306" stroke="#A63E2D" strokeWidth="1" />
-              <circle cx="780" cy="332" r="3.5" fill="#A63E2D" />
-
-              {/* AI Quality & Governance — large bottom-left governance platform */}
-              <line x1="218" y1="358" x2="80" y2="342" stroke="#A63E2D" strokeWidth="1" />
-              <circle cx="218" cy="358" r="3.5" fill="#A63E2D" />
-            </svg>
-
-            {/* Labels — positioned as % of container */}
-            {[
-              {
-                label: 'AI Solution & Strategy',
-                sub: 'Process-to-agent mapping · AI diagnostics',
-                style: { top: '8%', left: '30%' },
-              },
-              {
-                label: 'AI Orchestration & Agent Engineering',
-                sub: 'Multi-agent pipelines · RAG · LLM orchestration',
-                style: { top: '48%', left: '0%' },
-              },
-              {
-                label: 'Product & Platform Engineering',
-                sub: 'React · Next.js · Spring Boot · FastAPI · Go',
-                style: { top: '16%', left: '54%' },
-              },
-              {
-                label: 'Experience & Intelligent Design',
-                sub: 'Generative UI · Conversational UX · Voice',
-                style: { top: '28%', right: '0%' },
-              },
-              {
-                label: 'Data & Intelligence Engineering',
-                sub: 'Embeddings · Vector DBs · Knowledge bases',
-                style: { top: '53%', right: '0%' },
-              },
-              {
-                label: 'AI Infrastructure & ML Ops',
-                sub: 'Model serving · LLM gateways · GPU scaling',
-                style: { top: '66%', right: '0%' },
-              },
-              {
-                label: 'AI Quality & Governance',
-                sub: 'Agent testing · Hallucination detection · Compliance',
-                style: { top: '74%', left: '0%' },
-              },
-            ].map((item, idx) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.08 }}
-                className="absolute"
-                style={item.style}
-              >
-                <p className="text-[11px] font-bold text-ink leading-tight whitespace-nowrap">{item.label}</p>
-                <p className="text-[9px] text-gray-500 font-light mt-0.5 whitespace-nowrap hidden md:block">{item.sub}</p>
-              </motion.div>
-            ))}
           </div>
 
           <div className="mt-16 text-center">
