@@ -1,4 +1,5 @@
-import { motion } from 'motion/react';
+import { motion, useInView, animate } from 'motion/react';
+import { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroScene } from '@/src/components/HeroScene';
 import { 
@@ -28,6 +29,53 @@ import {
 import { cn } from '@/src/lib/utils';
 import { TiltCard } from '@/src/components/TiltCard';
 
+// ── Animated word-by-word reveal ────────────────────────────────────────────
+function AnimatedWords({ text, className, startDelay = 0.15 }: {
+  text: string; className?: string; startDelay?: number;
+}) {
+  return (
+    <span className={className}>
+      {text.split(' ').map((word, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, y: 22, filter: 'blur(6px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ delay: startDelay + i * 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-block mr-[0.28em] last:mr-0"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+// ── Count-up stat badge  e.g. "150+ AI STACK ENGINEERS" ──────────────────────
+function CountUpStat({ text }: { text: string }) {
+  const match = text.match(/^(\d+)(\+?)\s(.+)$/);
+  const numRef  = useRef<HTMLSpanElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const inView  = useInView(wrapRef, { once: true });
+
+  useEffect(() => {
+    if (!inView || !numRef.current || !match) return;
+    const target = parseInt(match[1]);
+    const ctrl = animate(0, target, {
+      duration: 1.8,
+      ease: 'easeOut',
+      onUpdate: (v) => { if (numRef.current) numRef.current.textContent = Math.round(v).toString(); },
+    });
+    return ctrl.stop;
+  }, [inView]);
+
+  if (!match) return <span>{text}</span>;
+  return (
+    <div ref={wrapRef} className="inline-flex">
+      <span ref={numRef}>0</span>{match[2]}&nbsp;{match[3]}
+    </div>
+  );
+}
+
 export function Home() {
   return (
     <div className="pt-20">
@@ -42,8 +90,8 @@ export function Home() {
             className="max-w-3xl"
           >
             <h1 className="text-4xl md:text-6xl font-display font-light leading-[1.2] mb-6">
-              Intelligent AI Solutions. <br />
-              <span className="text-gray-600">Practical. Ethical. Scalable.</span>
+              <AnimatedWords text="Intelligent AI Solutions." startDelay={0.1} /><br />
+              <AnimatedWords text="Practical. Ethical. Scalable." className="text-gray-600" startDelay={0.45} />
             </h1>
             <p className="text-xl text-gray-600 font-light italic mb-8 mx-auto max-w-2xl leading-relaxed">
               We will help you <span className="bg-brand/10 text-brand px-1.5 py-0.5 rounded font-medium">cut the clutter around AI</span> and tailor AI to solve your real world business problems
@@ -73,12 +121,15 @@ export function Home() {
                 "30+ GLOBAL CLIENTS",
                 "40+ TURNKEY PROJECTS"
               ].map((stat, idx) => (
-                <motion.div 
+                <motion.div
                   key={idx}
-                  whileHover={{ y: -2 }}
-                  className="px-4 py-2 bg-white border border-gray-100 text-[9px] font-bold tracking-[0.2em] text-gray-500 rounded-none shadow-sm hover:shadow-md hover:border-brand/20 transition-all cursor-default"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 + idx * 0.1, duration: 0.45 }}
+                  whileHover={{ y: -3 }}
+                  className="px-4 py-2 bg-white border border-gray-100 text-[9px] font-bold tracking-[0.2em] text-gray-500 rounded-none shadow-sm hover:shadow-md hover:border-brand/30 hover:text-brand transition-all duration-300 cursor-default"
                 >
-                  {stat}
+                  <CountUpStat text={stat} />
                 </motion.div>
               ))}
             </div>
@@ -87,7 +138,10 @@ export function Home() {
       </section>
 
       {/* Clients Section */}
-      <section className="py-12 border-y border-gray-100 bg-white overflow-hidden">
+      <section className="py-12 border-y border-gray-100 bg-white overflow-hidden relative">
+        {/* Edge fade masks */}
+        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
         <div className="flex items-center gap-12 animate-marquee whitespace-nowrap">
           {[
             'upGrad', 'Akamai', 'Cumulations', 'Pixid', 'Palette', 'MorphBots', 'Xelp', 'Aditya Birla Group', 'Geeky Ants',
@@ -123,20 +177,27 @@ export function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { title: 'AI Orchestration', desc: 'From single prompts to full business workflows — we build the agent infrastructure that runs your operations.' },
               { title: 'AI Optimization', desc: 'Every token counts. We make your AI faster, leaner, and dramatically cheaper to run at scale.' },
               { title: 'Private AI', desc: 'AI, entirely within your walls — sovereign, secure, and fully yours.' },
               { title: 'Prescriptive AI', desc: 'Move Beyond predictions — AI that tells you exactly what to do next, and gets smarter every time you do it.' },
             ].map((pillar, idx) => (
-              <div
+              <motion.div
                 key={pillar.title}
-                className="group"
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="group relative pl-5 border-l-2 border-gray-100 hover:border-brand transition-colors duration-300 cursor-default py-1"
               >
-                <h3 className="text-xl font-light mb-4 group-hover:text-brand transition-colors">{pillar.title}</h3>
+                <span className="text-[10px] font-mono text-gray-300 mb-2 block group-hover:text-brand/60 transition-colors duration-300">
+                  {(idx + 1).toString().padStart(2, '0')}
+                </span>
+                <h3 className="text-xl font-light mb-3 group-hover:text-brand transition-colors duration-300">{pillar.title}</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">{pillar.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -289,28 +350,55 @@ export function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <span className="text-xs font-medium tracking-widest uppercase text-brand mb-4 block">Our Structure</span>
-            <h2 className="text-4xl md:text-5xl font-display font-light leading-tight mb-4">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="text-4xl md:text-5xl font-display font-light leading-tight mb-4"
+            >
               How we are organized
-            </h2>
+            </motion.h2>
+            {/* Animated divider line */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              style={{ transformOrigin: 'center' }}
+              className="w-12 h-px bg-brand mx-auto mb-6"
+            />
             <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto">
               Seven specialized teams — built for the AI era, with a seamless flow of intelligence.
             </p>
           </div>
 
-          {/* Isometric org chart */}
-          <div className="w-full">
+          {/* Isometric org chart — fade + scale reveal on scroll */}
+          <motion.div
+            className="w-full"
+            initial={{ opacity: 0, scale: 0.97 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+          >
             <img
               src="/isometric-org.png"
               alt="EquiMinds Organisation Structure"
               className="w-full h-auto object-contain"
             />
-          </div>
+          </motion.div>
 
-          <div className="mt-16 text-center">
+          <motion.div
+            className="mt-16 text-center"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
             <p className="text-2xl md:text-3xl text-gray-600 font-display font-light italic">
               Hardened by traditional development, supercharged by AI.
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -402,16 +490,25 @@ export function Home() {
             ].map((t, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="p-8 border border-gray-200 rounded-none flex flex-col gap-6 hover:shadow-xl hover:border-transparent transition-all duration-300 group"
+                transition={{ delay: idx * 0.12, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -4 }}
+                className="relative p-8 border border-gray-100 flex flex-col gap-6 hover:shadow-2xl hover:border-brand/20 transition-all duration-300 group overflow-hidden"
               >
-                <p className="text-gray-700 font-light leading-relaxed text-sm italic flex-1">
-                  "{t.quote}"
+                {/* Decorative large quote mark */}
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-2 right-5 text-[7rem] font-serif leading-none text-brand/8 select-none pointer-events-none group-hover:text-brand/15 transition-colors duration-500"
+                >
+                  "
+                </span>
+                <p className="text-gray-700 font-light leading-relaxed text-sm italic flex-1 relative z-10">
+                  {t.quote}
                 </p>
-                <div>
+                <div className="relative z-10">
+                  <div className="w-8 h-px bg-brand mb-3 group-hover:w-16 transition-all duration-500" />
                   <p className="font-medium text-ink text-sm">{t.name}</p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand mt-1">{t.title}</p>
                 </div>
