@@ -48,9 +48,9 @@ export function Contact() {
               <p className="text-xs font-bold tracking-[0.3em] uppercase text-gray-400 mb-8">Contact Details</p>
               <div className="flex flex-col gap-8">
                 {[
-                  { icon: Mail, label: 'Email', value: 'hello@equiminds.ai' },
-                  { icon: Phone, label: 'Phone', value: '+1 (800) 000-0000' },
-                  { icon: MapPin, label: 'Location', value: 'Global — India · UAE · USA' },
+                  { icon: Mail, label: 'Email', value: 'contact@equiminds.ai' },
+                  { icon: Phone, label: 'Phone', value: '+971 50 884 6789' },
+                  { icon: MapPin, label: 'Office', value: 'Meydan Grandstand, 6th floor, Meydan Road, Nad Al Sheba, Dubai, U.A.E.' },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-start gap-4">
                     <div className="p-2 bg-brand/5 shrink-0">

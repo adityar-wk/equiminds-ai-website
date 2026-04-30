@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Mail, MapPin, Globe } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Footer() {
@@ -15,15 +15,15 @@ export function Footer() {
             <div className="flex flex-col gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-3">
                 <Mail size={16} className="text-brand" />
-                <span>vijay.anand@gowebknot.com</span>
+                <a href="mailto:contact@equiminds.ai" className="hover:text-brand transition-colors">contact@equiminds.ai</a>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone size={16} className="text-brand" />
+                <span>+971 50 884 6789</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin size={16} className="text-brand" />
-                <span>Bengaluru, India / UAE</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Globe size={16} className="text-brand" />
-                <span>equiminds.ai</span>
+                <span>Meydan Grandstand, 6th floor, Dubai, U.A.E.</span>
               </div>
             </div>
           </div>
@@ -31,10 +31,10 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-bold tracking-widest uppercase text-gray-600 mb-8">Offerings</h4>
             <ul className="space-y-4 text-sm text-gray-700">
-              <li><Link to="/#offerings" className="hover:text-brand transition-colors">AI Orchestration</Link></li>
-              <li><Link to="/#offerings" className="hover:text-brand transition-colors">AI Optimization</Link></li>
-              <li><Link to="/#offerings" className="hover:text-brand transition-colors">Private AI</Link></li>
-              <li><Link to="/#offerings" className="hover:text-brand transition-colors">Prescriptive AI</Link></li>
+              <li><Link to="/offerings?tab=0" className="hover:text-brand transition-colors">AI Orchestration</Link></li>
+              <li><Link to="/offerings?tab=1" className="hover:text-brand transition-colors">AI Optimization</Link></li>
+              <li><Link to="/offerings?tab=2" className="hover:text-brand transition-colors">Private AI</Link></li>
+              <li><Link to="/offerings?tab=3" className="hover:text-brand transition-colors">Prescriptive AI</Link></li>
             </ul>
           </div>
 

@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Zap, TrendingDown, Lock, Brain } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { cn } from '@/src/lib/utils';
 
 const pillars = [
@@ -88,6 +88,16 @@ export function Offerings() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === null || !scrollRef.current) return;
+    const idx = parseInt(tab);
+    if (isNaN(idx) || idx < 0 || idx >= pillars.length) return;
+    const timer = setTimeout(() => goTo(idx), 150);
+    return () => clearTimeout(timer);
+  }, [searchParams]);
 
   const goTo = (idx: number) => {
     if (!scrollRef.current) return;
