@@ -395,7 +395,7 @@ export function Home() {
                 className={`p-10 flex flex-col gap-6 group ${product.dark ? 'bg-[#08080f]' : 'bg-white'}`}
               >
                 <div>
-                  <span className={`text-[9px] font-bold uppercase tracking-widest mb-3 block ${product.dark ? 'text-[#A63E2D]' : 'text-brand'}`}>
+                  <span className={`text-[9px] font-bold uppercase tracking-widest mb-3 block ${product.dark ? 'text-[#C4533E]' : 'text-brand'}`}>
                     {product.platform}
                   </span>
                   <h3 className={`text-3xl font-display font-light mb-2 ${product.dark ? 'text-white' : 'text-ink'}`}>
@@ -410,12 +410,82 @@ export function Home() {
                 </p>
                 <Link
                   to="/products"
-                  className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors ${product.dark ? 'text-[#A63E2D] hover:text-white' : 'text-gray-400 group-hover:text-brand'}`}
+                  className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors ${product.dark ? 'text-[#C4533E] hover:text-white' : 'text-gray-400 group-hover:text-brand'}`}
                 >
                   Learn More <ArrowRight size={12} />
                 </Link>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Enterprise Growth Systems ── */}
+      <section className="py-28 px-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20 max-w-3xl mx-auto">
+            <span className="inline-block px-4 py-1.5 border border-gray-200 text-[10px] font-bold uppercase tracking-[0.25em] text-gray-500 mb-8">
+              Capabilities
+            </span>
+            <h2 className="text-4xl md:text-6xl font-display font-light leading-tight mb-8">
+              Enterprise Growth Systems<br />
+              Powered by <span className="text-brand">Salesforce, Data &amp; AI</span>
+            </h2>
+            <p className="text-lg text-gray-500 font-light leading-relaxed mb-4">
+              EquiMinds helps enterprises modernize customer operations using Salesforce, deep engineering, intelligent automation, and connected digital ecosystems.
+            </p>
+            <p className="text-sm text-gray-400 font-light leading-relaxed">
+              From CRM transformation to AI copilots to complex integrations, we build systems that scale revenue, service, and customer experience.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t border-l border-gray-100 mb-px">
+            {[
+              {
+                title: 'Salesforce Consulting and Transformation',
+                desc: 'Implement, modernize, or optimize Sales Cloud, Service Cloud, Experience Cloud, and custom Salesforce ecosystems.',
+              },
+              {
+                title: 'AI on Salesforce',
+                desc: 'Deploy Agentforce, Einstein AI, service copilots, intelligent routing, automation agents, and next-gen workflows.',
+              },
+              {
+                title: 'Connected Enterprise Integrations',
+                desc: 'Integrate Salesforce with ERP, SAP, custom apps, data warehouses, telephony, WhatsApp, and business-critical systems.',
+              },
+              {
+                title: 'Managed Growth Operations',
+                desc: 'Ongoing optimization, admin support, release management, dashboards, governance, and continuous ROI improvement.',
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                className="p-10 border-r border-b border-gray-100 group hover:bg-[#fafafa] transition-colors"
+              >
+                <span className="text-[10px] font-mono text-gray-300 mb-6 block group-hover:text-brand/50 transition-colors">{(idx + 1).toString().padStart(2, '0')}</span>
+                <h3 className="text-sm font-bold tracking-[0.05em] text-ink mb-4 leading-snug group-hover:text-brand transition-colors">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-gray-500 font-light leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="py-12 px-10 bg-surface border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-lg md:text-xl font-display font-light text-brand italic">
+              Not Just Salesforce. Business Systems That Perform.
+            </p>
+            <Link
+              to="/contact"
+              className="px-8 py-4 bg-brand text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-brand-dark transition-colors flex items-center gap-3 group shrink-0"
+            >
+              Talk to Our Transformation Team
+              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>

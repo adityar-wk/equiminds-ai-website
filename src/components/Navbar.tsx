@@ -16,11 +16,23 @@ const navLinks = [
 export function Navbar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const isDark = location.pathname === '/products';
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+    <nav className={cn(
+      "fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b transition-colors duration-300",
+      isDark
+        ? "bg-[#08080f]/70 border-white/5"
+        : "bg-white/80 border-gray-100"
+    )}>
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <Link to="/" className="text-xl font-display font-light tracking-tighter">
+        <Link
+          to="/"
+          className={cn(
+            "text-xl font-display font-light tracking-tighter transition-colors",
+            isDark ? "text-white" : "text-ink"
+          )}
+        >
           EquiMinds AI
         </Link>
 
@@ -31,8 +43,10 @@ export function Navbar() {
               key={link.name}
               to={link.path}
               className={cn(
-                "text-sm font-light transition-colors hover:text-brand",
-                location.pathname === link.path ? "text-brand" : "text-gray-600"
+                "text-sm font-light transition-colors",
+                isDark
+                  ? location.pathname === link.path ? "text-[#C4533E]" : "text-gray-400 hover:text-white"
+                  : location.pathname === link.path ? "text-brand" : "text-gray-600 hover:text-brand"
               )}
             >
               {link.name}
@@ -40,14 +54,17 @@ export function Navbar() {
           ))}
           <Link
             to="/contact"
-            className="px-5 py-2 text-sm font-light border border-brand text-brand hover:bg-brand hover:text-white transition-all duration-300"
+            className="px-5 py-2 text-sm font-light bg-brand text-white hover:bg-brand-dark transition-all duration-300"
           >
             Contact
           </Link>
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+        <button
+          className={cn("md:hidden", isDark ? "text-white" : "text-ink")}
+          onClick={() => setIsOpen(!isOpen)}
+        >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -57,14 +74,17 @@ export function Navbar() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-gray-100 p-6 flex flex-col gap-4"
+          className={cn(
+            "md:hidden absolute top-20 left-0 right-0 border-b p-6 flex flex-col gap-4",
+            isDark ? "bg-[#08080f]/95 border-white/5" : "bg-white border-gray-100"
+          )}
         >
           {navLinks.map((link) => (
             <Link
               key={link.name}
               to={link.path}
               onClick={() => setIsOpen(false)}
-              className="text-lg font-medium"
+              className={cn("text-lg font-medium", isDark ? "text-gray-300" : "text-ink")}
             >
               {link.name}
             </Link>
@@ -72,7 +92,7 @@ export function Navbar() {
           <Link
             to="/contact"
             onClick={() => setIsOpen(false)}
-            className="text-lg font-medium text-brand"
+            className={cn("text-lg font-medium", isDark ? "text-[#C4533E]" : "text-brand")}
           >
             Contact
           </Link>

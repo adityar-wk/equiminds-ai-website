@@ -38,12 +38,22 @@ type Product = LightProduct | DarkProduct;
 const products: Product[] = [
   {
     id: '01',
+    dark: true,
     platform: 'ANALYTICS PLATFORM',
     name: 'VizAI',
     tagline: 'Natural Language Data Visualization Board',
-    positioning: '"A natural-language analytics platform that turns plain English questions into business dashboards and visual insights."',
+    positioning: '"A natural-language analytics platform that turns plain English questions into business dashboards and visual insights — no SQL, no BI expertise required."',
     problem: 'Organizations struggled to convert data into timely business insights due to heavy reliance on technical teams, manual dashboard creation, and complex BI tools. Reporting cycles were slow, analytics costs were high, and business users lacked the ability to independently explore data.',
     solution: 'VizAI is an AI-powered unified analytics platform that enables businesses to connect their data and generate insights instantly — without requiring technical or analytical expertise.',
+    coverImage: '/vizai-cover.png',
+    link: 'https://vizai.webknot-dev.in',
+    modulesLabel: 'How It Works',
+    steps: [
+      { num: '01', title: 'Connect Your Data', desc: 'Onboard any database through a simple chat-based setup in minutes — no configuration required.' },
+      { num: '02', title: 'Ask in Plain English', desc: 'Query your data using natural language. No SQL, no BI expertise, no waiting on analysts.' },
+      { num: '03', title: 'Instant Dashboards', desc: 'AI auto-generates dashboards and visualizations directly from your connected data sources.' },
+      { num: '04', title: 'Proactive Insights', desc: 'Automated KPI tracking identifies trends, anomalies, and performance gaps before they become problems.' },
+    ],
     capabilities: [
       'Natural Language Analytics: Query data using plain English without SQL.',
       'Instant Database Onboarding: Connect databases through a simple chat-based setup in minutes.',
@@ -143,17 +153,31 @@ const products: Product[] = [
 export function Products() {
   return (
     <div className="pt-20">
-      <section className="h-screen flex items-center px-6 bg-white relative z-10">
-        <div className="max-w-7xl mx-auto">
+      {/* Hero — dark with wavy gradients */}
+      <section className="h-screen flex items-center px-6 bg-[#08080f] relative z-10 overflow-hidden">
+        {/* Wavy gradient blobs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-[-20%] left-[-10%] w-[700px] h-[700px] rounded-full bg-[#C4533E]/20 blur-[140px]" />
+          <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-indigo-900/40 blur-[130px]" />
+          <div className="absolute top-[30%] right-[20%] w-[400px] h-[400px] rounded-full bg-violet-900/30 blur-[100px]" />
+          <div className="absolute bottom-[20%] left-[30%] w-[300px] h-[300px] rounded-full bg-[#C4533E]/10 blur-[80px]" />
+          {/* Subtle grid overlay */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-3xl"
           >
-            <h1 className="text-5xl md:text-7xl font-display font-light mb-8">Flagship Products</h1>
-            <p className="text-xl text-gray-700 font-light leading-relaxed">
+            <span className="text-xs font-bold tracking-[0.3em] uppercase text-[#C4533E] mb-6 block">Our Products</span>
+            <h1 className="text-5xl md:text-7xl font-display font-light mb-8 text-white leading-tight">
+              Flagship<br />
+              <span className="text-gray-400 italic">Products</span>
+            </h1>
+            <p className="text-xl text-gray-400 font-light leading-relaxed max-w-xl">
               EquiMinds builds practical AI products that solve real business problems across analytics, marketing intelligence, and meeting automation.
             </p>
           </motion.div>
@@ -172,7 +196,7 @@ export function Products() {
               <div className="max-w-7xl mx-auto w-full">
                 {/* Header */}
                 <div className="mb-7">
-                  <span className="text-xs font-medium tracking-widest text-[#A63E2D] mb-3 block uppercase">
+                  <span className="text-xs font-medium tracking-widest text-[#C4533E] mb-3 block uppercase">
                     {product.platform}
                   </span>
                   <div className="flex items-end justify-between flex-wrap gap-4">
@@ -187,12 +211,12 @@ export function Products() {
                         href={product.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-6 py-2.5 bg-[#A63E2D] text-white text-sm font-medium hover:bg-[#8A3325] transition-colors"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-[#C4533E] text-white text-sm font-medium hover:bg-[#A63E2D] transition-colors"
                       >
                         Try {product.name} <ArrowUpRight size={14} />
                       </a>
                     ) : (
-                      <button className="flex items-center gap-2 px-6 py-2.5 bg-[#A63E2D] text-white text-sm font-medium hover:bg-[#8A3325] transition-colors">
+                      <button className="flex items-center gap-2 px-6 py-2.5 bg-[#C4533E] text-white text-sm font-medium hover:bg-[#A63E2D] transition-colors">
                         Request Demo <ArrowUpRight size={14} />
                       </button>
                     )}
@@ -203,7 +227,7 @@ export function Products() {
                 <div className="grid lg:grid-cols-[1fr_1.3fr] gap-10 items-center mb-7">
                   {/* Left: info */}
                   <div>
-                    <p className="text-base italic font-display font-light text-gray-300 leading-relaxed mb-7 border-l-2 border-[#A63E2D]/50 pl-4">
+                    <p className="text-base italic font-display font-light text-gray-300 leading-relaxed mb-7 border-l-2 border-[#C4533E]/50 pl-4">
                       {product.positioning}
                     </p>
 
@@ -219,7 +243,7 @@ export function Products() {
                           transition={{ duration: 0.4, delay: Number(step.num) * 0.08 }}
                           className="flex gap-4 items-start"
                         >
-                          <span className="text-xs font-mono text-[#A63E2D] mt-0.5 w-6 flex-shrink-0">
+                          <span className="text-xs font-mono text-[#C4533E] mt-0.5 w-6 flex-shrink-0">
                             {step.num}
                           </span>
                           <div>
@@ -233,7 +257,7 @@ export function Products() {
 
                   {/* Right: screenshot */}
                   <div className="relative">
-                    <div className="absolute -inset-4 bg-[#A63E2D]/10 rounded-3xl blur-3xl" />
+                    <div className="absolute -inset-4 bg-[#C4533E]/10 rounded-3xl blur-3xl" />
                     <motion.img
                       src={product.coverImage}
                       alt={`${product.name} dashboard`}
@@ -252,7 +276,7 @@ export function Products() {
                       key={idx}
                       className="p-5 border-r border-b border-white/10 hover:bg-white/5 transition-colors duration-300"
                     >
-                      <h5 className="text-[#A63E2D] text-xs font-bold mb-1">{outcome.label}</h5>
+                      <h5 className="text-[#C4533E] text-xs font-bold mb-1">{outcome.label}</h5>
                       <p className="text-xs text-gray-500 leading-relaxed">{outcome.desc}</p>
                     </TiltCard>
                   ))}
@@ -359,6 +383,46 @@ export function Products() {
           )}
         </section>
       ))}
+
+      {/* Dark CTA footer */}
+      <section className="relative bg-[#08080f] py-32 px-6 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-[-30%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#C4533E]/15 blur-[130px]" />
+          <div className="absolute bottom-[-20%] left-[-5%] w-[500px] h-[500px] rounded-full bg-violet-900/25 blur-[120px]" />
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl md:text-6xl font-display font-light text-white mb-6 leading-tight">
+              Ready to put AI to work<br />
+              <span className="text-gray-500 italic">inside your business?</span>
+            </h2>
+            <p className="text-lg text-gray-500 font-light mb-12 max-w-xl mx-auto leading-relaxed">
+              Request a demo of any product or talk to us about a custom AI solution tailored to your workflows.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <a
+                href="/contact"
+                className="px-10 py-4 bg-[#C4533E] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#A63E2D] transition-colors flex items-center gap-3 group"
+              >
+                Request a Demo
+                <ArrowUpRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </a>
+              <a
+                href="/offerings"
+                className="px-10 py-4 border border-white/10 text-white text-xs font-bold uppercase tracking-[0.2em] hover:border-white/30 transition-colors"
+              >
+                Explore Our Offerings
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </section>
     </div>
   );
 }
