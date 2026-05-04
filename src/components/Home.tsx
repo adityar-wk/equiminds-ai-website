@@ -275,6 +275,47 @@ export function Home() {
       </section>
 
 
+      {/* ── Full AI Stack ── */}
+      <section className="py-28 px-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-20">
+            <span className="text-xs font-medium tracking-widest uppercase text-brand mb-4 block">Our Expertise</span>
+            <h2 className="text-4xl md:text-6xl font-display font-light leading-tight">
+              Built Across the<br />
+              <span className="text-gray-400 italic">Full AI Stack</span>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-0 border-l border-t border-gray-100">
+            {[
+              { id: '01', title: 'AI Orchestration & Agent Engineering', desc: 'Multi-agent pipelines, standalone agents, RAG, LLM orchestration, OpenClaw-based systems.' },
+              { id: '02', title: 'Product & Platform Engineering', desc: 'React, Next.js, React Native, Spring Boot, FastAPI, Go, enterprise product development.' },
+              { id: '03', title: 'AI Solutions & Strategy', desc: 'Process-to-agent mapping, AI diagnostics, workflow redesign, COTS replacement analysis.' },
+              { id: '04', title: 'Data & Intelligence Engineering', desc: 'Pipelines, embeddings, vector databases, knowledge bases, real-time streaming.' },
+              { id: '05', title: 'AI Infrastructure & MLOps', desc: 'Model serving, LLM gateways, private AI infrastructure, GPU scaling.' },
+              { id: '06', title: 'AI Quality & Governance', desc: 'Agent testing, hallucination detection, bias auditing, compliance-aware delivery.' },
+              { id: '07', title: 'Experience & Intelligent Design', desc: 'Conversational UX, generative UI, adaptive interfaces, voice-first experiences.' },
+            ].map((item, idx) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.06 }}
+                className="p-10 border-r border-b border-gray-100 hover:bg-[#fafafa] transition-colors"
+              >
+                <div className="flex gap-8">
+                  <span className="text-xs font-mono text-brand mt-1 shrink-0">{item.id}</span>
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">{item.title}</h3>
+                    <p className="text-sm text-gray-500 font-light leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Quick Start Services ── */}
       <section id="quick-start" className="py-28 px-6 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">

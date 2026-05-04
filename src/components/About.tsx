@@ -1,4 +1,5 @@
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from 'react';
 import { TiltCard } from '@/src/components/TiltCard';
 
 function TeamImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
@@ -19,6 +20,103 @@ function TeamImage({ src, alt, className }: { src: string; alt: string; classNam
         }
       }}
     />
+  );
+}
+
+const ACTIVITY_IMAGES = [
+  { src: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80', alt: 'Team collaboration' },
+  { src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=800&q=80', alt: 'Office meeting' },
+  { src: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80', alt: 'Team workshop' },
+  { src: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80', alt: 'Team building' },
+  { src: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=800&q=80', alt: 'Office work' },
+  { src: 'https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=800&q=80', alt: 'Team celebration' },
+];
+
+const BENTO_LAYOUTS = [
+  {
+    areas: `"a a b" "a a c" "d e f"`,
+    cols: '2fr 1fr 1fr',
+    rows: '220px 220px 200px',
+    items: [
+      { area: 'a', img: 0 },
+      { area: 'b', img: 1 },
+      { area: 'c', img: 2 },
+      { area: 'd', img: 3 },
+      { area: 'e', img: 4 },
+      { area: 'f', img: 5 },
+    ],
+  },
+  {
+    areas: `"a b b" "a c d" "e e d"`,
+    cols: '1fr 1fr 1fr',
+    rows: '200px 220px 200px',
+    items: [
+      { area: 'a', img: 2 },
+      { area: 'b', img: 0 },
+      { area: 'c', img: 3 },
+      { area: 'd', img: 1 },
+      { area: 'e', img: 4 },
+    ],
+  },
+  {
+    areas: `"a a b" "c d b" "c d e"`,
+    cols: '1fr 1fr 1fr',
+    rows: '200px 220px 220px',
+    items: [
+      { area: 'a', img: 5 },
+      { area: 'b', img: 1 },
+      { area: 'c', img: 3 },
+      { area: 'd', img: 0 },
+      { area: 'e', img: 2 },
+    ],
+  },
+];
+
+function BentoGallery() {
+  const [layoutIdx, setLayoutIdx] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLayoutIdx((i) => (i + 1) % BENTO_LAYOUTS.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const layout = BENTO_LAYOUTS[layoutIdx];
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={layoutIdx}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.6, ease: 'easeInOut' }}
+        style={{
+          display: 'grid',
+          gridTemplateAreas: layout.areas,
+          gridTemplateColumns: layout.cols,
+          gridTemplateRows: layout.rows,
+          gap: '8px',
+        }}
+        className="w-full"
+      >
+        {layout.items.map((item) => (
+          <div
+            key={item.area}
+            style={{ gridArea: item.area }}
+            className="overflow-hidden"
+          >
+            <img
+              src={ACTIVITY_IMAGES[item.img].src}
+              alt={ACTIVITY_IMAGES[item.img].alt}
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        ))}
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -64,10 +162,24 @@ export function About() {
         </div>
       </section>
 
-      {/* Leadership Team Section */}
-      <section className="py-32 px-6 border-t border-gray-100">
+
+      {/* ── Bento Gallery ── */}
+      <section className="py-20 px-6 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-20">
+          <div className="mb-12">
+            <span className="text-xs font-bold tracking-[0.3em] uppercase text-brand mb-4 block">Life at EquiMinds</span>
+            <h2 className="text-3xl md:text-4xl font-display font-light leading-tight">
+              Our People, Our Culture
+            </h2>
+          </div>
+          <BentoGallery />
+        </div>
+      </section>
+
+      {/* ── Leadership Team ── */}
+      <section className="py-32 px-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="mb-16">
             <span className="text-xs font-bold tracking-[0.3em] uppercase text-brand mb-4 block">The People Behind the Work</span>
             <h2 className="text-3xl md:text-5xl font-display font-light leading-tight">
               Leadership Team <br />
@@ -76,9 +188,9 @@ export function About() {
           </div>
 
           {/* C-Suite Row */}
-          <div className="mb-8">
+          <div className="mb-10">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-6">Executive Leadership</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {[
                 { name: 'Vijay Anand', title: 'Chief Executive Officer', img: '/team/vijay-anand.png' },
                 { name: 'Pranav Sathish', title: 'Chief Financial Officer', img: '/team/pranav-sathish.png' },
@@ -90,18 +202,18 @@ export function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="group border border-gray-200 hover:border-transparent hover:shadow-xl transition-all duration-300"
+                  className="group border border-gray-200 hover:border-transparent hover:shadow-xl transition-all duration-300 w-52"
                 >
-                  <div className="aspect-[3/4] overflow-hidden bg-gray-100">
+                  <div className="aspect-square overflow-hidden bg-gray-100">
                     <TeamImage
                       src={member.img}
                       alt={member.name}
                       className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                     />
                   </div>
-                  <div className="p-4 border-t border-gray-100">
-                    <h3 className="text-sm font-medium text-ink">{member.name}</h3>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-brand mt-1">{member.title}</p>
+                  <div className="p-3 border-t border-gray-100">
+                    <h3 className="text-xs font-medium text-ink">{member.name}</h3>
+                    <p className="text-[8px] font-bold uppercase tracking-widest text-brand mt-1">{member.title}</p>
                   </div>
                 </motion.div>
               ))}
@@ -111,7 +223,7 @@ export function About() {
           {/* Senior Leadership Row */}
           <div>
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-6">Senior Leadership</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {[
                 { name: 'Suresh Narayan', title: 'Vice President of Delivery', img: '/team/suresh-narayan.png' },
                 { name: 'Chaitanya', title: 'Chief Business Officer', img: '/team/chaitanya.png' },
@@ -124,49 +236,22 @@ export function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1 }}
-                  className="group border border-gray-200 hover:border-transparent hover:shadow-xl transition-all duration-300"
+                  className="group border border-gray-200 hover:border-transparent hover:shadow-xl transition-all duration-300 w-52"
                 >
-                  <div className="aspect-[3/4] overflow-hidden bg-gray-100">
+                  <div className="aspect-square overflow-hidden bg-gray-100">
                     <TeamImage
                       src={member.img}
                       alt={member.name}
                       className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                     />
                   </div>
-                  <div className="p-4 border-t border-gray-100">
-                    <h3 className="text-sm font-medium text-ink">{member.name}</h3>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-brand mt-1">{member.title}</p>
+                  <div className="p-3 border-t border-gray-100">
+                    <h3 className="text-xs font-medium text-ink">{member.name}</h3>
+                    <p className="text-[8px] font-bold uppercase tracking-widest text-brand mt-1">{member.title}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-display font-light mb-20">Built Across the Full AI Stack</h2>
-          <div className="grid md:grid-cols-2 gap-0 border-l border-t border-gray-100/50">
-            {[
-              { id: '01', title: 'AI Orchestration & Agent Engineering', desc: 'Multi-agent pipelines, standalone agents, RAG, LLM orchestration, OpenClaw-based systems.' },
-              { id: '02', title: 'Product & Platform Engineering', desc: 'React, Next.js, React Native, Spring Boot, FastAPI, Go, enterprise product development.' },
-              { id: '03', title: 'AI Solutions & Strategy', desc: 'Process-to-agent mapping, AI diagnostics, workflow redesign, COTS replacement analysis.' },
-              { id: '04', title: 'Data & Intelligence Engineering', desc: 'Pipelines, embeddings, vector databases, knowledge bases, real-time streaming.' },
-              { id: '05', title: 'AI Infrastructure & MLOps', desc: 'Model serving, LLM gateways, private AI infrastructure, GPU scaling.' },
-              { id: '06', title: 'AI Quality & Governance', desc: 'Agent testing, hallucination detection, bias auditing, compliance-aware delivery.' },
-              { id: '07', title: 'Experience & Intelligent Design', desc: 'Conversational UX, generative UI, adaptive interfaces, voice-first experiences.' },
-            ].map((item) => (
-              <TiltCard key={item.id} className="p-8 border-r border-b border-gray-100/50 hover:bg-surface transition-colors duration-500">
-                <div className="flex gap-8">
-                  <span className="text-xs font-mono text-brand mt-1">{item.id}</span>
-                  <div>
-                    <h3 className="text-xl font-medium mb-2">{item.title}</h3>
-                    <p className="text-sm text-gray-700 font-light leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              </TiltCard>
-            ))}
           </div>
         </div>
       </section>
