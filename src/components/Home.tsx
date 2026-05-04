@@ -14,6 +14,8 @@ import {
   Target,
   FastForward,
   ClipboardCheck,
+  RefreshCw,
+  Network,
 } from 'lucide-react';
 
 function AnimatedWords({ text, className, startDelay = 0.15 }: {
@@ -486,6 +488,70 @@ export function Home() {
               Talk to Our Transformation Team
               <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── OutSystems Section ── */}
+      <section className="py-28 px-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20 max-w-3xl mx-auto">
+            <span className="inline-block px-4 py-1.5 border border-gray-200 text-[10px] font-bold uppercase tracking-[0.25em] text-gray-500 mb-8">
+              Capabilities
+            </span>
+            <h2 className="text-4xl md:text-6xl font-display font-light leading-tight mb-8">
+              AI Agentic Platforms,<br />
+              Built Faster on{' '}
+              <span className="inline-flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#E3261B] text-white text-sm font-bold leading-none">O</span>
+                <span className="text-brand">OutSystems</span>
+              </span>
+            </h2>
+            <p className="text-lg text-gray-500 font-light leading-relaxed">
+              Our low-code engine for building AI agentic platforms — the fastest way to design, deploy, and scale intelligent enterprise applications without compromising on engineering depth.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t border-l border-gray-100">
+            {[
+              {
+                icon: Bot,
+                title: 'Agentic App Development',
+                desc: 'Design and ship AI-native, agent-driven enterprise applications with rapid, production-grade delivery.',
+              },
+              {
+                icon: RefreshCw,
+                title: 'Legacy to AI Modernization',
+                desc: 'Re-engineer legacy systems into modern, agentic, AI-ready applications using low-code velocity.',
+              },
+              {
+                icon: Network,
+                title: 'Agentic Workflow Automation',
+                desc: 'Automate approvals, operations, and decision flows with intelligent agents embedded into business processes.',
+              },
+              {
+                icon: Users,
+                title: 'Certified Pods & Staff Augmentation',
+                desc: 'Certified OutSystems developers, architects, and dedicated AI delivery pods that plug into enterprise teams.',
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                className="p-10 border-r border-b border-gray-100 group hover:bg-[#fafafa] transition-colors"
+              >
+                <div className="w-10 h-10 rounded-xl bg-brand/8 flex items-center justify-center mb-6 group-hover:bg-brand/15 transition-colors">
+                  <item.icon size={20} strokeWidth={1.5} className="text-brand" />
+                </div>
+                <h3 className="text-sm font-bold tracking-[0.05em] text-ink mb-4 leading-snug group-hover:text-brand transition-colors">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-gray-500 font-light leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
