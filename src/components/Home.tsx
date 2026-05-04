@@ -274,32 +274,6 @@ export function Home() {
         </div>
       </section>
 
-      {/* ── Org Structure ── */}
-      <section className="py-28 px-6 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-xs font-medium tracking-widest uppercase text-brand mb-4 block">Our Structure</span>
-            <h2 className="text-4xl md:text-6xl font-display font-light leading-tight mb-4">How we are organized</h2>
-            <motion.div
-              initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              style={{ transformOrigin: 'center' }} className="w-12 h-px bg-brand mx-auto mb-6"
-            />
-            <p className="text-xl text-gray-500 font-light max-w-2xl mx-auto">
-              Seven specialized teams — built for the AI era, with a seamless flow of intelligence.
-            </p>
-          </div>
-          <motion.img
-            src="/isometric-org.png" alt="EquiMinds Organisation Structure"
-            className="w-full h-auto object-contain"
-            initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: '-60px' }} transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-          />
-          <p className="mt-16 text-2xl md:text-3xl text-gray-400 font-display font-light italic text-center">
-            Hardened by traditional development, supercharged by AI.
-          </p>
-        </div>
-      </section>
 
       {/* ── Quick Start Services ── */}
       <section id="quick-start" className="py-28 px-6 border-t border-gray-100">
@@ -501,11 +475,7 @@ export function Home() {
             </span>
             <h2 className="text-4xl md:text-6xl font-display font-light leading-tight mb-8">
               AI Agentic Platforms,<br />
-              Built Faster on{' '}
-              <span className="inline-flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#E3261B] text-white text-sm font-bold leading-none">O</span>
-                <span className="text-brand">OutSystems</span>
-              </span>
+              Built Faster on <span className="text-brand">OutSystems</span>
             </h2>
             <p className="text-lg text-gray-500 font-light leading-relaxed">
               Our low-code engine for building AI agentic platforms — the fastest way to design, deploy, and scale intelligent enterprise applications without compromising on engineering depth.
