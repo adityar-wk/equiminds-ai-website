@@ -23,27 +23,18 @@ function TeamImage({ src, alt, className }: { src: string; alt: string; classNam
   );
 }
 
-const ACTIVITY_IMAGES = [
-  { src: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80', alt: 'Team collaboration' },
-  { src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=800&q=80', alt: 'Office meeting' },
-  { src: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80', alt: 'Team workshop' },
-  { src: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80', alt: 'Team building' },
-  { src: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=800&q=80', alt: 'Office work' },
-  { src: 'https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=800&q=80', alt: 'Team celebration' },
-];
-
 const BENTO_LAYOUTS = [
   {
     areas: `"a a b" "a a c" "d e f"`,
     cols: '2fr 1fr 1fr',
     rows: '220px 220px 200px',
     items: [
-      { area: 'a', img: 0 },
-      { area: 'b', img: 1 },
-      { area: 'c', img: 2 },
-      { area: 'd', img: 3 },
-      { area: 'e', img: 4 },
-      { area: 'f', img: 5 },
+      { area: 'a', src: '/activity/DSC_0016.JPG' },
+      { area: 'b', src: '/activity/DSC_0124.JPG' },
+      { area: 'c', src: '/activity/20230902_121429.jpg' },
+      { area: 'd', src: '/activity/20241119_152117.jpg' },
+      { area: 'e', src: '/activity/20250319_164829.jpg' },
+      { area: 'f', src: '/activity/IMG-20250124-WA0022.jpg' },
     ],
   },
   {
@@ -51,11 +42,11 @@ const BENTO_LAYOUTS = [
     cols: '1fr 1fr 1fr',
     rows: '200px 220px 200px',
     items: [
-      { area: 'a', img: 2 },
-      { area: 'b', img: 0 },
-      { area: 'c', img: 3 },
-      { area: 'd', img: 1 },
-      { area: 'e', img: 4 },
+      { area: 'a', src: '/activity/DSC_0576.JPG' },
+      { area: 'b', src: '/activity/1765782102746.jpeg' },
+      { area: 'c', src: '/activity/IMG_1152.jpeg' },
+      { area: 'd', src: '/activity/20230902_122950.jpg' },
+      { area: 'e', src: '/activity/DSC_0038.JPG' },
     ],
   },
   {
@@ -63,11 +54,11 @@ const BENTO_LAYOUTS = [
     cols: '1fr 1fr 1fr',
     rows: '200px 220px 220px',
     items: [
-      { area: 'a', img: 5 },
-      { area: 'b', img: 1 },
-      { area: 'c', img: 3 },
-      { area: 'd', img: 0 },
-      { area: 'e', img: 2 },
+      { area: 'a', src: '/activity/20250117_105526.jpg' },
+      { area: 'b', src: '/activity/DSC_0690.JPG' },
+      { area: 'c', src: '/activity/1769692715901.jpeg' },
+      { area: 'd', src: '/activity/IMG20221126143127.jpg' },
+      { area: 'e', src: '/activity/VideoCapture_20240706-003118.jpg' },
     ],
   },
 ];
@@ -108,10 +99,9 @@ function BentoGallery() {
             className="overflow-hidden"
           >
             <img
-              src={ACTIVITY_IMAGES[item.img].src}
-              alt={ACTIVITY_IMAGES[item.img].alt}
+              src={item.src}
+              alt="EquiMinds team activity"
               className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
             />
           </div>
         ))}
