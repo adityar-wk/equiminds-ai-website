@@ -205,7 +205,7 @@ export function Offerings() {
     <div className="pt-20">
 
       {/* Hero section */}
-      <section className="min-h-screen flex flex-col justify-end px-6 pb-24 pt-40 border-b border-brand relative overflow-hidden bg-brand">
+      <section className="flex flex-col justify-end px-6 pb-16 pt-36 border-b border-brand relative overflow-hidden bg-brand">
         <div className="max-w-5xl">
           <h1 className="text-4xl md:text-6xl font-display font-light leading-tight mb-4 text-white">
             Most companies treat AI as a feature.
