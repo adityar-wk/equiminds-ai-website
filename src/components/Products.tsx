@@ -187,12 +187,12 @@ export function Products() {
       {products.map((product, index, array) => (
         <section
           key={product.id}
-          className="h-screen sticky top-0 overflow-hidden"
+          className="min-h-screen flex items-center border-t border-white/5"
           style={{ zIndex: 20 + index }}
         >
           {product.dark ? (
             /* ── Dark theme product (Chorus / MeetMinds) ── */
-            <div className="h-full w-full flex items-center px-6 bg-[#08080f] border-t border-white/5">
+            <div className="w-full flex items-center px-6 py-24 bg-[#08080f]">
               <div className="max-w-7xl mx-auto w-full">
                 {/* Header */}
                 <div className="mb-7">
@@ -287,7 +287,7 @@ export function Products() {
             /* ── Light theme (VizAI) ── */
             <div
               className={cn(
-                'h-full w-full flex items-center px-6 border-t border-gray-100 bg-white',
+                'w-full flex items-center px-6 py-24 border-t border-gray-100 bg-white',
                 index < array.length - 1 && 'shadow-[0_20px_50px_rgba(0,0,0,0.1)]',
                 index % 2 !== 0 && 'bg-surface',
               )}
