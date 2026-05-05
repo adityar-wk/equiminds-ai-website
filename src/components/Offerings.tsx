@@ -1,8 +1,101 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ArrowRight, Zap, TrendingDown, Lock, Brain } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { cn } from '@/src/lib/utils';
+
+function HalftoneHero({ children, className }: { children: React.ReactNode; className?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: -1, y: -1 });
+  const rafRef = useRef<number>();
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const GRID = 10;
+
+    const syncSize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    syncSize();
+    const ro = new ResizeObserver(syncSize);
+    ro.observe(canvas);
+
+    // Pre-compute a random phase offset per grid cell for organic randomness
+    const phaseMap = new Map<string, number>();
+    const getPhase = (gx: number, gy: number) => {
+      const key = `${gx},${gy}`;
+      if (!phaseMap.has(key)) phaseMap.set(key, Math.random() * Math.PI * 2);
+      return phaseMap.get(key)!;
+    };
+
+    const render = (timestamp: number) => {
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const { x: mx, y: my } = mouseRef.current;
+      const t = timestamp / 1000;
+
+      for (let gx = GRID / 2; gx < W + GRID; gx += GRID) {
+        for (let gy = GRID / 2; gy < H + GRID; gy += GRID) {
+          // Each dot pulses at its own random phase — organic, not uniform
+          const phase = getPhase(gx, gy);
+          const speed = 0.6 + Math.sin(phase * 1.3) * 0.3; // vary speed per dot
+          const wave = Math.sin(t * speed + phase) * 0.5 + 0.5;
+          const baseRadius = (0.08 + wave * 0.07) * GRID;
+
+          let radius = baseRadius;
+          let r = 232, g = 48, b = 42;
+
+          if (mx >= 0) {
+            const dm = Math.hypot(gx - mx, gy - my);
+            const inf = Math.max(0, 1 - dm / 120);
+            radius = Math.min(baseRadius + inf * GRID * 0.28, GRID * 0.44);
+            r = Math.round(232 + inf * 20);
+            g = Math.round(48  - inf * 30);
+            b = Math.round(42  - inf * 20);
+          }
+
+          ctx.beginPath();
+          ctx.arc(gx, gy, radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fill();
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(render);
+    };
+
+    rafRef.current = requestAnimationFrame(render);
+    return () => {
+      ro.disconnect();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const onMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+  }, []);
+
+  const onLeave = useCallback(() => {
+    mouseRef.current = { x: -1, y: -1 };
+  }, []);
+
+  return (
+    <section className={className} onMouseMove={onMove} onMouseLeave={onLeave}>
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none z-0"
+        aria-hidden="true"
+      />
+      {children}
+    </section>
+  );
+}
 
 const pillars = [
   {
@@ -112,16 +205,16 @@ export function Offerings() {
     <div className="pt-20">
 
       {/* Hero section */}
-      <section className="min-h-screen flex flex-col justify-center px-6 py-32 border-b border-gray-100">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-display font-light leading-tight mb-6 text-ink">
+      <section className="min-h-screen flex flex-col justify-end px-6 pb-24 pt-40 border-b border-brand relative overflow-hidden bg-brand">
+        <div className="max-w-5xl">
+          <h1 className="text-4xl md:text-6xl font-display font-light leading-tight mb-4 text-white">
             Most companies treat AI as a feature.
           </h1>
-          <p className="text-5xl md:text-7xl font-display font-light leading-tight mb-16 text-gray-300 italic">
+          <p className="text-4xl md:text-6xl font-display font-light leading-tight mb-12 text-white/70 italic">
             We build it as the operating system.
           </p>
-          <p className="text-lg text-gray-600 font-light leading-relaxed max-w-2xl mx-auto">
-            At EquiMinds, our offerings are structured around the four dimensions of enterprise AI maturity — <span className="text-brand">Orchestration, Optimization, Privacy, and Prescription.</span> Whether you're deploying your first agent or overhauling an entire business function, we meet you where you are and move you to where AI actually delivers.
+          <p className="text-base text-white/80 font-light leading-relaxed max-w-2xl">
+            At EquiMinds, our offerings are structured around the four dimensions of enterprise AI maturity — <span className="text-white font-medium">Orchestration, Optimization, Privacy, and Prescription.</span> Whether you're deploying your first agent or overhauling an entire business function, we meet you where you are and move you to where AI actually delivers.
           </p>
         </div>
       </section>
