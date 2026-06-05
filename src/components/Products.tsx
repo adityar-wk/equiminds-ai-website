@@ -126,7 +126,7 @@ const products: Product[] = [
     positioning: '"An AI evidence-integrity platform that tells insurers whether submitted claims evidence can be trusted — before they act on it."',
     problem: 'AI-generated images, edited damage photos, recycled evidence and narrative mismatches increasingly exploit insurance workflows. Traditional systems assume submissions are genuine — running every submission through a multi-signal integrity pipeline before any decision is made.',
     solution: 'M-INT breaks that assumption. Every submission is evaluated across computer vision, LLM narrative analysis, cross-asset coherence, and explainable risk scoring — outputting a trust verdict before any claims decision is triggered.',
-    coverImage: '/mint-cover.png',
+    coverImage: '/mint-cover.webp',
     modulesLabel: 'How It Works',
     steps: [
       { num: '01', title: 'Multi-Signal Integrity Pipeline', desc: 'Evaluates images, documents, videos and context for authenticity, manipulation, synthetic content and narrative consistency.' },
