@@ -384,7 +384,7 @@ export function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-100">
             {[
               {
                 id: '01', platform: 'Analytics Platform', name: 'VizAI',
@@ -403,6 +403,12 @@ export function Home() {
                 tagline: 'Your Silent AI Meeting Companion',
                 desc: 'Joins your Google Meet as a silent bot, records the call, and automatically emails everyone a clean summary and minutes of meeting the moment it ends.',
                 dark: false,
+              },
+              {
+                id: '04', platform: 'Trust & Evidence Integrity', name: 'M-INT',
+                tagline: 'AI Evidence-Integrity Platform for Insurance',
+                desc: 'Tells insurers whether submitted claims evidence can be trusted — before they act on it. Multi-signal integrity pipeline across images, documents, and narratives.',
+                dark: true,
               },
             ].map((product) => (
               <motion.div
